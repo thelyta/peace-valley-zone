@@ -6,6 +6,8 @@ node_modules
 dist
 tsconfig.tsbuildinfo
 
+# Generated from the backend OpenAPI contract during builds.
+src/api/generated/
 
 .agents
 .claude
@@ -17,5 +19,4 @@ tsconfig.tsbuildinfo
 .kiro
 .impeccable
 .opencode
-
 
