@@ -39,7 +39,10 @@ export default defineConfig({
       client: "axios-functions",
       mode: "tags-split",
       target: "./src/api/generated",
-      clean: true,
+      // Keep the shared schema module available during deployment. Orval's
+      // tags-split output regenerates tag clients but does not always emit the
+      // schema barrel when the output directory starts empty.
+      clean: false,
       override: {
         mutator: {
           name: "customInstance",
