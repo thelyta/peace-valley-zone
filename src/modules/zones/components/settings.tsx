@@ -67,7 +67,7 @@ export function ZoneSettingsPage({ zoneId }: { zoneId: string }) {
               key={item.id}
               role="tab"
               aria-selected={activeTab === item.id}
-              variant={activeTab === item.id ? "primary" : "outline"}
+              variant={activeTab === item.id ? "default" : "outline"}
               onClick={() => setTab(item.id)}
             >
               {item.label}

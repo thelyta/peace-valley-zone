@@ -208,7 +208,7 @@ export function MemberRequestsList({ zoneId }: { zoneId: string }) {
                 >
                   Approve
                 </Button>
-                <Button variant="danger" onClick={() => openReject(selected)}>
+                <Button variant="destructive" onClick={() => openReject(selected)}>
                   Reject
                 </Button>
               </div>

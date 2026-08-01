@@ -91,7 +91,7 @@ export function SessionsList() {
           </p>
           <Button
             type="button"
-            variant="danger"
+            variant="destructive"
             className="min-h-11 shrink-0"
             disabled={pending}
             onClick={() => {
@@ -133,7 +133,7 @@ export function SessionsList() {
                 {!session.isCurrent ? (
                   <Button
                     type="button"
-                    variant="danger"
+                    variant="destructive"
                     className="mt-4 min-h-11"
                     disabled={pending}
                     onClick={() => {

@@ -136,7 +136,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                 {canInvite && user.membershipStatus === "ACTIVE" ? (
                   <Button
                     className="mt-3"
-                    variant="danger"
+                    variant="destructive"
                     disabled={revoke.isPending}
                     onClick={() => setRevokeUser(user)}
                   >
@@ -178,7 +178,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                         ) : null}
                         {canInvite && user.membershipStatus === "ACTIVE" ? (
                           <Button
-                            variant="danger"
+                            variant="destructive"
                             disabled={revoke.isPending}
                             onClick={() => setRevokeUser(user)}
                           >

@@ -262,7 +262,9 @@ export function ConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            className={cn(buttonVariants({ variant: tone === "danger" ? "danger" : "primary" }))}
+            className={cn(
+              buttonVariants({ variant: tone === "danger" ? "destructive" : "default" }),
+            )}
             disabled={pending}
             onClick={(event) => {
               event.preventDefault();
