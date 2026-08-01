@@ -75,7 +75,7 @@ export function LoginForm() {
         if (returnTo) {
           params.set("returnTo", returnTo);
         }
-        router.replace(`/verify-device?${params.toString()}`);
+        window.location.assign(`/verify-device?${params.toString()}`);
         return;
       }
 
