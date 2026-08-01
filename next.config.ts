@@ -1,8 +1,12 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  distDir: 'dist',
+  output: "export",
+  distDir: "dist",
+  turbopack: {
+    root: path.join(__dirname),
+  },
 };
 
 export default nextConfig;

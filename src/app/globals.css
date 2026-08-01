@@ -2,6 +2,126 @@
 
 @source "../../src/**/*.{js,ts,jsx,tsx,mdx}";
 
-body {
-  @apply bg-gray-50 text-gray-900;
+/*
+  Peace Valley semantic tokens — mapped from existing slate/sky/emerald/amber/red usage.
+  No new hues.
+*/
+:root {
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #075985; /* sky-800 */
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9; /* slate-100 */
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9; /* slate-100 */
+  --muted-foreground: #475569; /* slate-600 */
+  --accent: #f0f9ff; /* sky-50 */
+  --accent-foreground: #0c4a6e; /* sky-900 */
+  --destructive: #b91c1c; /* red-700 */
+  --destructive-foreground: #ffffff;
+  --success: #047857; /* emerald-700 */
+  --success-foreground: #ffffff;
+  --success-soft: #ecfdf5; /* emerald-50 */
+  --success-soft-foreground: #065f46; /* emerald-800 */
+  --warning: #92400e; /* amber-800 */
+  --warning-foreground: #ffffff;
+  --warning-soft: #fffbeb; /* amber-50 */
+  --warning-soft-foreground: #78350f; /* amber-950 */
+  --border: #e2e8f0; /* slate-200 */
+  --input: #cbd5e1; /* slate-300 */
+  --ring: #0369a1; /* sky-700 */
+  --solid: #334155; /* slate-700 — filled secondary CTAs */
+  --solid-foreground: #ffffff;
+  --overlay: rgb(15 23 42 / 0.42); /* slate-900 @ 42% — modal scrims */
+  --ink: #0f172a; /* slate-900 — camera / deep surfaces */
+  --radius: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-sheet: 1rem;
+  /* Public auth band — same sky family as --primary */
+  --public-band: linear-gradient(
+    168deg,
+    #0c4a6e 0%,
+    #075985 32%,
+    #0369a1 42%,
+    #e0f2fe 48%,
+    #f8fafc 58%,
+    #f1f5f9 100%
+  );
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-solid: var(--solid);
+  --color-solid-foreground: var(--solid-foreground);
+  --color-overlay: var(--overlay);
+  --color-ink: var(--ink);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-card);
+  --radius-xl: var(--radius-sheet);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:focus-within {
+      scroll-behavior: auto;
+    }
+
+    .animate-pulse {
+      animation: none;
+    }
+  }
 }

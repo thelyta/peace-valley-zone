@@ -1,0 +1,7 @@
+export function normalizeNigerianPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("234")) return `+${digits}`;
+  if (digits.startsWith("0")) return `+234${digits.slice(1)}`;
+  return `+234${digits}`;
+}
