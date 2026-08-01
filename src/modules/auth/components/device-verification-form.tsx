@@ -111,7 +111,15 @@ export function DeviceVerificationForm() {
 
     try {
       const result = await resend.mutateAsync(challengeId);
+      setCode("");
       setSecondsLeft(result.resendAfterSeconds);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("challenge", result.challengeId);
+      params.set("resendAfter", String(result.resendAfterSeconds));
+      if (result.maskedEmail) {
+        params.set("email", result.maskedEmail);
+      }
+      router.replace(`/verify-device?${params.toString()}`);
       setMessage({ tone: "info", text: "A new code has been sent." });
     } catch (error) {
       setMessage({
