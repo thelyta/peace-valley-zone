@@ -9,7 +9,7 @@ import { z } from "zod";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
 import { zoneUsersQueryOptions } from "@/modules/residents/queries/use-fetch-zone-users";
-import type { HouseholdStatus, VisitorAccessOverride } from "@/types/enums";
+import type { HouseholdDuesStatus, VisitorAccessOverride } from "@/types/enums";
 import type { THouseholdItem } from "@/types/households";
 import {
   Badge,
@@ -32,8 +32,22 @@ import { useUpdateHouseholdMember } from "../mutations/use-update-household-memb
 import { householdMembersQueryOptions } from "../queries/use-fetch-household-members";
 import { useFetchHouseholds } from "../queries/use-fetch-households";
 
-function statusTone(status: HouseholdStatus) {
-  return status === "ACTIVE" ? ("good" as const) : ("neutral" as const);
+function duesTone(status: HouseholdDuesStatus | null) {
+  switch (status) {
+    case "PAID":
+    case "WAIVED":
+      return "good" as const;
+    case "UNPAID":
+      return "danger" as const;
+    default:
+      return "neutral" as const;
+  }
+}
+
+function duesLabel(status: HouseholdDuesStatus | null) {
+  return status
+    ? status.toLowerCase().replace(/^./, (letter) => letter.toUpperCase())
+    : "Not assessed";
 }
 
 function visitationPolicyLabel(value: VisitorAccessOverride | string) {
@@ -57,6 +71,9 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
     value: VisitorAccessOverride;
   } | null>(null);
   const [search, setSearch] = useState("");
+  const [duesFilter, setDuesFilter] = useState("ALL");
+  const [householdFilter, setHouseholdFilter] = useState("ALL");
+  const [visitationFilter, setVisitationFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   const toast = useToast();
 
@@ -75,13 +92,18 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
 
   const items = query.data.items;
   const normalizedSearch = search.trim().toLowerCase();
-  const filteredItems = normalizedSearch
-    ? items.filter((item) =>
-        [item.address, item.label ?? ""].some((value) =>
-          value.toLowerCase().includes(normalizedSearch),
-        ),
-      )
-    : items;
+  const filteredItems = items.filter((item) => {
+    const matchesSearch =
+      !normalizedSearch ||
+      [item.address, item.label ?? ""].some((value) => value.toLowerCase().includes(normalizedSearch));
+    const matchesDues =
+      duesFilter === "ALL" ||
+      (duesFilter === "NONE" ? item.duesStatus === null : item.duesStatus === duesFilter);
+    const matchesHousehold = householdFilter === "ALL" || item.status === householdFilter;
+    const matchesVisitation =
+      visitationFilter === "ALL" || item.visitorAccessOverride === visitationFilter;
+    return matchesSearch && matchesDues && matchesHousehold && matchesVisitation;
+  });
   const pageSize = 25;
   const pageCount = Math.max(1, Math.ceil(filteredItems.length / pageSize));
   const activePage = Math.min(page, pageCount);
@@ -93,7 +115,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Households</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Homes, members, and visitor access overrides.
+            Homes, members, visitor access, and annual dues tracking from 2026.
           </p>
         </div>
         {canManage ? (
@@ -104,17 +126,64 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
         ) : null}
       </div>
 
-      <Field label="Search households">
-        <Input
-          type="search"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-          placeholder="Address or label"
-        />
-      </Field>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Field label="Search households">
+          <Input
+            type="search"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Address or label"
+          />
+        </Field>
+        <Field label="Dues status">
+          <SelectControl
+            value={duesFilter}
+            onValueChange={(value) => {
+              setDuesFilter(value);
+              setPage(1);
+            }}
+            options={[
+              { value: "ALL", label: "All dues statuses" },
+              { value: "PAID", label: "Paid" },
+              { value: "UNPAID", label: "Unpaid" },
+              { value: "WAIVED", label: "Waived" },
+              { value: "NONE", label: "Not assessed" },
+            ]}
+          />
+        </Field>
+        <Field label="Household status">
+          <SelectControl
+            value={householdFilter}
+            onValueChange={(value) => {
+              setHouseholdFilter(value);
+              setPage(1);
+            }}
+            options={[
+              { value: "ALL", label: "All households" },
+              { value: "ACTIVE", label: "Active" },
+              { value: "INACTIVE", label: "Inactive" },
+            ]}
+          />
+        </Field>
+        <Field label="Visitation policy">
+          <SelectControl
+            value={visitationFilter}
+            onValueChange={(value) => {
+              setVisitationFilter(value);
+              setPage(1);
+            }}
+            options={[
+              { value: "ALL", label: "All policies" },
+              { value: "INHERIT", label: "Follow zone policy" },
+              { value: "ALLOW", label: "Allow visitation" },
+              { value: "BLOCK", label: "Block visitation" },
+            ]}
+          />
+        </Field>
+      </div>
 
       {!items.length ? (
         <EmptyState
@@ -134,7 +203,9 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                   Primary resident: {household.primaryResident?.fullName ?? "—"}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Badge tone={statusTone(household.status)}>{household.status}</Badge>
+                  <Badge tone={duesTone(household.duesStatus)}>
+                    {duesLabel(household.duesStatus)}
+                  </Badge>
                   <Badge>{visitationPolicyLabel(household.visitorAccessOverride)}</Badge>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -173,7 +244,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                   <th className="px-4 py-3 font-semibold">Address</th>
                   <th className="px-4 py-3 font-semibold">Primary resident</th>
                   <th className="px-4 py-3 font-semibold">Members</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Dues status</th>
                   <th className="px-4 py-3 font-semibold">Visitation policy</th>
                   <th className="px-4 py-3 font-semibold">Actions</th>
                 </tr>
@@ -190,7 +261,9 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                     <td className="px-4 py-3">{household.primaryResident?.fullName ?? "—"}</td>
                     <td className="px-4 py-3">{household._count.memberships}</td>
                     <td className="px-4 py-3">
-                      <Badge tone={statusTone(household.status)}>{household.status}</Badge>
+                      <Badge tone={duesTone(household.duesStatus)}>
+                        {duesLabel(household.duesStatus)}
+                      </Badge>
                     </td>
                     <td className="px-4 py-3">
                       {canManage ? (

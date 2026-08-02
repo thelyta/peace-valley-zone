@@ -1,13 +1,10 @@
 "use client";
 
-import { CheckCircle2, ScanLine, ShieldCheck, UserCheck, XCircle } from "lucide-react";
+import { CheckCircle2, ScanLine, ShieldCheck, XCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ApiError } from "@/lib/errors";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import type { TGateVerificationValid } from "@/types/gate";
-import { Badge, Button, EmptyState, Field, Icon, Input, Skeleton } from "@/ui";
-import { formatDateTime } from "@/utils/dates";
+import { Button, EmptyState, Field, Icon, Input, Skeleton } from "@/ui";
 import { userMessageForError } from "@/utils/error-messages";
 import { useAdmitVisitor } from "../mutations/use-admit-visitor";
 import { useVerifyVisitor } from "../mutations/use-verify-visitor";
@@ -80,70 +77,30 @@ export function GatePanel({
   initialCode?: string;
 }) {
   const [code, setCode] = useState("");
-  const [result, setResult] = useState<TGateVerificationValid | null>(null);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"neutral" | "good" | "danger">("neutral");
-  const [observedPartySize, setObservedPartySize] = useState("");
-  const [partyDiffers, setPartyDiffers] = useState(false);
   const lastSeededCode = useRef("");
 
   const verify = useVerifyVisitor(zoneId, gateId);
   const admit = useAdmitVisitor(zoneId, gateId);
   const verifyAsync = verify.mutateAsync;
+  const admitAsync = admit.mutateAsync;
 
   function clearResult() {
     setMessage("");
-    setResult(null);
     setCode("");
-    setPartyDiffers(false);
-    setObservedPartySize("");
     setMessageTone("neutral");
   }
 
-  async function check(value: string) {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return;
-    }
-    setMessage("");
-    setResult(null);
-    setPartyDiffers(false);
-    setObservedPartySize("");
-    try {
-      const response = await verifyAsync(trimmed);
-      if (!response.valid || !response.passId) {
-        setMessageTone("danger");
-        setMessage(
-          response.result
-            ? `Pass not valid (${response.result}).`
-            : "This pass could not be verified.",
-        );
+  const check = useCallback(
+    async (value: string) => {
+      const trimmed = value.trim();
+      if (!trimmed) {
         return;
       }
-      setResult(response);
-    } catch (error) {
-      setMessageTone("danger");
-      setMessage(userMessageForError(error, "This pass could not be verified."));
-    }
-  }
-
-  useEffect(() => {
-    if (!initialCode || initialCode === lastSeededCode.current) {
-      return;
-    }
-    lastSeededCode.current = initialCode;
-    const display = initialCode.startsWith("pvz://") ? initialCode : initialCode.toUpperCase();
-    setCode(display);
-    setMessage("");
-    setResult(null);
-    setPartyDiffers(false);
-    setObservedPartySize("");
-    let cancelled = false;
-    void verifyAsync(initialCode)
-      .then((response) => {
-        if (cancelled) {
-          return;
-        }
+      setMessage("");
+      try {
+        const response = await verifyAsync(trimmed);
         if (!response.valid || !response.passId) {
           setMessageTone("danger");
           setMessage(
@@ -153,57 +110,30 @@ export function GatePanel({
           );
           return;
         }
-        setResult(response);
-      })
-      .catch((error: unknown) => {
-        if (cancelled) {
-          return;
-        }
+        await admitAsync({ passId: response.passId });
+        setMessageTone("good");
+        setMessage("Admission confirmed.");
+        setCode("");
+      } catch (error) {
         setMessageTone("danger");
         setMessage(userMessageForError(error, "This pass could not be verified."));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [initialCode, verifyAsync]);
+      }
+    },
+    [admitAsync, verifyAsync],
+  );
 
-  async function confirm() {
-    if (!result?.passId || admit.isPending) {
+  useEffect(() => {
+    if (!initialCode || initialCode === lastSeededCode.current) {
       return;
     }
-    setMessage("");
-    let observed: number | undefined;
-    if (partyDiffers) {
-      const parsed = Number(observedPartySize);
-      if (!Number.isInteger(parsed) || parsed < 1) {
-        setMessageTone("danger");
-        setMessage("Enter the observed party size.");
-        return;
-      }
-      observed = parsed;
-    }
-    try {
-      await admit.mutateAsync({ passId: result.passId, observedPartySize: observed });
-      setMessageTone("good");
-      setMessage("Admission confirmed.");
-      setResult(null);
-      setCode("");
-      setPartyDiffers(false);
-      setObservedPartySize("");
-    } catch (error) {
-      setMessageTone("danger");
-      if (error instanceof ApiError && (error.status === 409 || error.status === 410)) {
-        setMessage(userMessageForError(error, "Admission not confirmed—try again."));
-        setResult(null);
-        return;
-      }
-      setMessage(userMessageForError(error, "Admission not confirmed—try again."));
-    }
-  }
+    lastSeededCode.current = initialCode;
+    const display = initialCode.startsWith("pvz://") ? initialCode : initialCode.toUpperCase();
+    setCode(display);
+    void check(initialCode);
+  }, [check, initialCode]);
 
-  const showReview = Boolean(result?.passId);
-  const showSuccess = messageTone === "good" && Boolean(message) && !showReview;
-  const showFailure = messageTone === "danger" && Boolean(message) && !showReview;
+  const showSuccess = messageTone === "good" && Boolean(message);
+  const showFailure = messageTone === "danger" && Boolean(message);
 
   return (
     <section className="space-y-4">
@@ -230,9 +160,14 @@ export function GatePanel({
               inputMode="text"
             />
           </Field>
-          <Button type="submit" className="mt-3 w-full" size="lg" disabled={verify.isPending}>
+          <Button
+            type="submit"
+            className="mt-3 w-full"
+            size="lg"
+            disabled={verify.isPending || admit.isPending}
+          >
             <Icon icon={ShieldCheck} size={24} />
-            {verify.isPending ? "Checking…" : "Check code"}
+            {verify.isPending || admit.isPending ? "Checking…" : "Check code"}
           </Button>
         </form>
         <Button asChild variant="secondary" size="lg" className="mt-3 w-full">
@@ -273,88 +208,6 @@ export function GatePanel({
         </div>
       ) : null}
 
-      {showReview && result ? (
-        <section aria-live="polite" className="space-y-3 pb-24">
-          <StatusPlane
-            tone="good"
-            title="Valid pass"
-            detail={`${result.visitorName} · ${result.partySize} ${result.partySize === 1 ? "person" : "people"}`}
-            icon={UserCheck}
-          />
-          <div className="rounded-xl border border-border bg-card p-5">
-            <div className="flex justify-between gap-3">
-              <h3 className="text-lg font-semibold">{result.visitorName}</h3>
-              <Badge tone={result.status === "PENDING" ? "good" : "warning"}>{result.status}</Badge>
-            </div>
-            <p className="mt-2 text-4xl font-bold tabular-nums tracking-tight">
-              {result.partySize}{" "}
-              <span className="text-lg font-semibold text-muted-foreground">
-                {result.partySize === 1 ? "person" : "people"}
-              </span>
-            </p>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-muted-foreground">Invited by</dt>
-                <dd className="font-medium">{result.inviterName}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Address</dt>
-                <dd className="font-medium">
-                  {result.houseNumber} {result.streetName}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Expires</dt>
-                <dd className="font-medium">{formatDateTime(result.expiresAt)}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Result</dt>
-                <dd className="font-medium">{result.result}</dd>
-              </div>
-            </dl>
-            {result.note ? (
-              <p className="mt-3 whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm">
-                {result.note}
-              </p>
-            ) : null}
-
-            <label className="mt-4 flex min-h-11 items-center gap-3 text-sm">
-              <input
-                type="checkbox"
-                className="size-5 accent-primary"
-                checked={partyDiffers}
-                onChange={(event) => setPartyDiffers(event.target.checked)}
-              />
-              Observed party size differs
-            </label>
-            {partyDiffers ? (
-              <Field label="Observed party size">
-                <Input
-                  type="number"
-                  min={1}
-                  inputMode="numeric"
-                  value={observedPartySize}
-                  onChange={(event) => setObservedPartySize(event.target.value)}
-                />
-              </Field>
-            ) : null}
-          </div>
-
-          <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-card/95 p-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
-            <Button
-              type="button"
-              variant="success"
-              size="lg"
-              className="w-full"
-              disabled={admit.isPending}
-              onClick={() => void confirm()}
-            >
-              <Icon icon={UserCheck} size={28} />
-              {admit.isPending ? "Confirming…" : "Admit visitor"}
-            </Button>
-          </div>
-        </section>
-      ) : null}
     </section>
   );
 }

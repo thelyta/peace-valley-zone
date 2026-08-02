@@ -1189,7 +1189,6 @@ export type ListHouseholdDuesResponseDtoOutputItemsItemStatus = typeof ListHouse
 
 export const ListHouseholdDuesResponseDtoOutputItemsItemStatus = {
   UNPAID: 'UNPAID',
-  PARTIAL: 'PARTIAL',
   PAID: 'PAID',
   WAIVED: 'WAIVED',
 } as const;
@@ -1223,7 +1222,6 @@ export type UpdateHouseholdDuesDtoStatus = typeof UpdateHouseholdDuesDtoStatus[k
 
 export const UpdateHouseholdDuesDtoStatus = {
   UNPAID: 'UNPAID',
-  PARTIAL: 'PARTIAL',
   PAID: 'PAID',
   WAIVED: 'WAIVED',
 } as const;
@@ -1248,7 +1246,6 @@ export type HouseholdDuesResponseDtoOutputStatus = typeof HouseholdDuesResponseD
 
 export const HouseholdDuesResponseDtoOutputStatus = {
   UNPAID: 'UNPAID',
-  PARTIAL: 'PARTIAL',
   PAID: 'PAID',
   WAIVED: 'WAIVED',
 } as const;
@@ -1876,4 +1873,3 @@ export const ReportsControllerXlsxStatus = {
   USED: 'USED',
   CANCELLED: 'CANCELLED',
 } as const;
-

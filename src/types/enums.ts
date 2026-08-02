@@ -5,8 +5,7 @@ export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
 export type GateStatus = "ACTIVE" | "INACTIVE";
 export type HouseholdStatus = "ACTIVE" | "INACTIVE";
 export type VisitorAccessOverride = "INHERIT" | "ALLOW" | "BLOCK";
-export type DuesPeriodStatus = "DRAFT" | "OPEN" | "CLOSED";
-export type HouseholdDuesStatus = "UNPAID" | "PARTIAL" | "PAID" | "WAIVED";
+export type HouseholdDuesStatus = "UNPAID" | "PAID" | "WAIVED";
 export type DuesGatePolicy = "BLOCK_IF_NOT_ELIGIBLE" | "ALLOW_ALWAYS";
 export type VisitorPassStatus = "PENDING" | "USED" | "CANCELLED" | "EXPIRED";
 export type GateVerificationResult =
@@ -27,7 +26,6 @@ export const Permission = {
   HOUSEHOLDS_MANAGE: "households.manage",
   USERS_MANAGE: "users.manage",
   SECURITY_ASSIGN: "security.assign",
-  DUES_MANAGE: "dues.manage",
   ANNOUNCEMENTS_MANAGE: "announcements.manage",
   ANNOUNCEMENTS_READ: "announcements.read",
   VISITOR_CREATE: "visitor.create",

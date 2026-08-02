@@ -28,13 +28,6 @@ export function AdminOverview({ zoneId }: { zoneId: string }) {
         detail: "Review who wants to join a home.",
       });
     }
-    if (hasPermission(session, zoneId, Permission.DUES_MANAGE)) {
-      actions.push({
-        href: "/admin/dues",
-        label: "Dues",
-        detail: "Periods, eligibility, and payments.",
-      });
-    }
     if (hasPermission(session, zoneId, Permission.REPORTS_VISITORS_READ)) {
       actions.push({
         href: "/admin/security-events",

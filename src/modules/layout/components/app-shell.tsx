@@ -11,7 +11,6 @@ import {
   Shield,
   UserPlus,
   Users,
-  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,7 +46,6 @@ const sectionIcons: Record<string, LucideIcon> = {
   "/admin/residents": Users,
   "/admin/households": Home,
   "/admin/member-requests": UserPlus,
-  "/admin/dues": Wallet,
   "/admin/announcements": Megaphone,
   "/admin/settings": Settings,
 };

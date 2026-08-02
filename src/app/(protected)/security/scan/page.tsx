@@ -20,8 +20,7 @@ export default function ScanPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Scan visitor pass</h1>
         <p className="mt-1 text-muted-foreground">
-          Scan the QR code, then confirm admission on the gate desk. Codes are never placed in the
-          URL.
+          Scan the QR code to check and admit the visitor. Codes are never placed in the URL.
         </p>
       </header>
       <Scanner

@@ -43,9 +43,6 @@ export function routeAllowed(session: Session, zoneId: string | null, pathname: 
     if (pathname.startsWith("/admin/households") || pathname.startsWith("/admin/member-requests")) {
       return hasPermission(session, zoneId, Permission.HOUSEHOLDS_MANAGE);
     }
-    if (pathname.startsWith("/admin/dues")) {
-      return hasPermission(session, zoneId, Permission.DUES_MANAGE);
-    }
     if (pathname.startsWith("/admin/announcements")) {
       return hasPermission(session, zoneId, Permission.ANNOUNCEMENTS_MANAGE);
     }

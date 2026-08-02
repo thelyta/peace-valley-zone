@@ -1,7 +1,6 @@
 import { announcementsKeys } from "@/modules/announcements/query-keys";
 import { authKeys } from "@/modules/auth/query-keys";
 import { directoryKeys } from "@/modules/directory/query-keys";
-import { duesKeys } from "@/modules/dues/query-keys";
 import { gateKeys } from "@/modules/gate/query-keys";
 import { householdsKeys } from "@/modules/households/query-keys";
 import { reportsKeys } from "@/modules/reports/query-keys";
@@ -22,8 +21,6 @@ export const zoneKeys = {
   householdMembers: (zoneId: string, householdId: string) =>
     householdsKeys.members.all(zoneId, householdId),
   users: (zoneId: string) => residentsKeys.users.all(zoneId),
-  duesPeriods: (zoneId: string) => duesKeys.periods.all(zoneId),
-  householdDues: (zoneId: string) => duesKeys.householdDues.all(zoneId),
   visitors: (zoneId: string, householdId: string) =>
     visitorPassesKeys.passes.all(zoneId, householdId),
   entryGates: (zoneId: string, householdId: string) =>
