@@ -2,7 +2,7 @@ import type {
   ListGateEventsResponseDtoOutputItemsItem,
   MyGatesResponseDtoOutputItemsItem,
   VerifyVisitorResponseDtoOutput,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type TMyGate = MyGatesResponseDtoOutputItemsItem;
 export type TGateEvent = ListGateEventsResponseDtoOutputItemsItem;

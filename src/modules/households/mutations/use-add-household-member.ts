@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { directoryControllerAddMember } from "@/api/generated/directory/directory";
-import type { AddHouseholdMemberDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { AddHouseholdMemberDto } from "@/api/generated/estatelyAPI.schemas";
 import { householdsKeys } from "@/modules/households/query-keys";
 import { handleApiError } from "@/utils/error";
 

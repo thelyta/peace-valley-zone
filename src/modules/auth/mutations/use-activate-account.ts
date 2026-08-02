@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { authControllerActivate } from "@/api/generated/auth/auth";
-import type { ActivateAccountDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { ActivateAccountDto } from "@/api/generated/estatelyAPI.schemas";
 
 export const useActivateAccount = () => {
   return useMutation({

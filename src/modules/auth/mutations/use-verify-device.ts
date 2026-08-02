@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { authControllerVerifyDevice } from "@/api/generated/auth/auth";
-import type { VerifyDeviceDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { VerifyDeviceDto } from "@/api/generated/estatelyAPI.schemas";
 
 export const useVerifyDevice = () => {
   return useMutation({

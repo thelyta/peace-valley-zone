@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { announcementsControllerCreate } from "@/api/generated/announcements/announcements";
-import type { CreateAnnouncementDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { CreateAnnouncementDto } from "@/api/generated/estatelyAPI.schemas";
 import { announcementsKeys } from "@/modules/announcements/query-keys";
 import { handleApiError } from "@/utils/error";
 

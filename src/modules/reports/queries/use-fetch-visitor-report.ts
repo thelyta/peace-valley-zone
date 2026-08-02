@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import type { ListVisitorReportsResponseDtoOutput } from "@/api/generated/magodoEstateAPI.schemas";
+import type { ListVisitorReportsResponseDtoOutput } from "@/api/generated/estatelyAPI.schemas";
 import { customInstance } from "@/lib/mutator";
 import { reportsKeys } from "@/modules/reports/query-keys";
 import { cleanFilters } from "@/modules/reports/utils/clean-filters";

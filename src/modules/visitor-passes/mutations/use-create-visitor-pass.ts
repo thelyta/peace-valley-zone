@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateVisitorPassDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { CreateVisitorPassDto } from "@/api/generated/estatelyAPI.schemas";
 import { customInstance } from "@/lib/mutator";
 import { visitorPassesKeys } from "@/modules/visitor-passes/query-keys";
 import type { TCreatedVisitorPass } from "@/types/visitor-passes";

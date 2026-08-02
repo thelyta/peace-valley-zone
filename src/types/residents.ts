@@ -1,7 +1,7 @@
 import type {
   InviteUserResponseDtoOutput,
   ListZoneUsersResponseDtoOutputItemsItem,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type TZoneUserItem = ListZoneUsersResponseDtoOutputItemsItem;
 export type TInviteUserResponse = InviteUserResponseDtoOutput;

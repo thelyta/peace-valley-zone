@@ -3,7 +3,7 @@ import type {
   SessionResponseDtoOutputHouseholdsItem,
   SessionResponseDtoOutputUser,
   SessionResponseDtoOutputZonesItem,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type Session = SessionResponseDtoOutput;
 export type SessionUser = SessionResponseDtoOutputUser;

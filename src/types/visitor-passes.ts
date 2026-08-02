@@ -3,7 +3,7 @@ import type {
   HouseholdEntryGatesResponseDtoOutputItemsItem,
   ListVisitorPassesResponseDtoOutputItemsItem,
   VisitorEligibilityResponseDtoOutput,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type TEntryGate = HouseholdEntryGatesResponseDtoOutputItemsItem;
 export type TVisitorEligibility = VisitorEligibilityResponseDtoOutput;

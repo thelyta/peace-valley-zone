@@ -3,7 +3,7 @@ import type {
   DeviceVerificationRequiredAuthResponseDtoOutput,
   ListSessionsResponseDtoOutputItemsItem,
   LoginResponseDtoOutput,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type TLoginResponse = LoginResponseDtoOutput;
 export type TAuthenticatedLoginResponse = AuthenticatedAuthResponseDtoOutput;

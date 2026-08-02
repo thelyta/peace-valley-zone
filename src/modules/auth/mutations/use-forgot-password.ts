@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { authControllerForgot } from "@/api/generated/auth/auth";
-import type { ForgotPasswordDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { ForgotPasswordDto } from "@/api/generated/estatelyAPI.schemas";
 
 export const useForgotPassword = () => {
   return useMutation({

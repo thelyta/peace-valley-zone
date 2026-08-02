@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { directoryControllerCreateStreet } from "@/api/generated/directory/directory";
-import type { CreateStreetDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { CreateStreetDto } from "@/api/generated/estatelyAPI.schemas";
 import { directoryKeys } from "@/modules/directory/query-keys";
 import { handleApiError } from "@/utils/error";
 

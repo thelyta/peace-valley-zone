@@ -2,7 +2,7 @@ import type {
   HouseholdMembershipResponseDtoOutput,
   ListHouseholdMembersResponseDtoOutputItemsItem,
   ListHouseholdsResponseDtoOutputItemsItem,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type THouseholdItem = ListHouseholdsResponseDtoOutputItemsItem;
 export type THouseholdMemberItem = ListHouseholdMembersResponseDtoOutputItemsItem;

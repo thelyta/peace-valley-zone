@@ -2,7 +2,7 @@ import type {
   ListSecurityEventsReportResponseDtoOutputItemsItem,
   ListVisitorReportsResponseDtoOutputItemsItem,
   ReportsSummaryResponseDtoOutput,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type TReportsSummary = ReportsSummaryResponseDtoOutput;
 export type TVisitorReportItem = ListVisitorReportsResponseDtoOutputItemsItem;

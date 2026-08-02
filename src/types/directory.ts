@@ -3,7 +3,7 @@ import type {
   ListGatesResponseDtoOutputItemsItem,
   ListStreetsResponseDtoOutputItemsItem,
   SecurityGateAssignmentResponseDtoOutput,
-} from "@/api/generated/magodoEstateAPI.schemas";
+} from "@/api/generated/estatelyAPI.schemas";
 
 export type TStreet = ListStreetsResponseDtoOutputItemsItem;
 export type TGate = ListGatesResponseDtoOutputItemsItem;

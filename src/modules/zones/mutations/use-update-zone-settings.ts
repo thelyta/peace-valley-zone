@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UpdateZoneSettingsDto } from "@/api/generated/magodoEstateAPI.schemas";
+import type { UpdateZoneSettingsDto } from "@/api/generated/estatelyAPI.schemas";
 import { zonesControllerSettings } from "@/api/generated/zones/zones";
 import { zonesKeys } from "@/modules/zones/query-keys";
 import { handleApiError } from "@/utils/error";
