@@ -32,7 +32,7 @@ import { useUpdateHouseholdMember } from "../mutations/use-update-household-memb
 import { householdMembersQueryOptions } from "../queries/use-fetch-household-members";
 import { useFetchHouseholds } from "../queries/use-fetch-households";
 
-function duesTone(status: HouseholdDuesStatus | null) {
+function duesTone(status: HouseholdDuesStatus) {
   switch (status) {
     case "PAID":
     case "WAIVED":
@@ -44,10 +44,8 @@ function duesTone(status: HouseholdDuesStatus | null) {
   }
 }
 
-function duesLabel(status: HouseholdDuesStatus | null) {
-  return status
-    ? status.toLowerCase().replace(/^./, (letter) => letter.toUpperCase())
-    : "Not assessed";
+function duesLabel(status: HouseholdDuesStatus) {
+  return status.toLowerCase().replace(/^./, (letter) => letter.toUpperCase());
 }
 
 function visitationPolicyLabel(value: VisitorAccessOverride | string) {
@@ -98,7 +96,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
       [item.address, item.label ?? ""].some((value) => value.toLowerCase().includes(normalizedSearch));
     const matchesDues =
       duesFilter === "ALL" ||
-      (duesFilter === "NONE" ? item.duesStatus === null : item.duesStatus === duesFilter);
+      item.duesStatus === duesFilter;
     const matchesHousehold = householdFilter === "ALL" || item.status === householdFilter;
     const matchesVisitation =
       visitationFilter === "ALL" || item.visitorAccessOverride === visitationFilter;
@@ -150,7 +148,6 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
               { value: "PAID", label: "Paid" },
               { value: "UNPAID", label: "Unpaid" },
               { value: "WAIVED", label: "Waived" },
-              { value: "NONE", label: "Not assessed" },
             ]}
           />
         </Field>

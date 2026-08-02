@@ -572,10 +572,7 @@ export type ListHouseholdsResponseDtoOutputItemsItemPrimaryResident = {
   fullName: string;
 } | null;
 
-/**
- * @nullable
- */
-export type ListHouseholdsResponseDtoOutputItemsItemDuesStatus = typeof ListHouseholdsResponseDtoOutputItemsItemDuesStatus[keyof typeof ListHouseholdsResponseDtoOutputItemsItemDuesStatus] | null;
+export type ListHouseholdsResponseDtoOutputItemsItemDuesStatus = typeof ListHouseholdsResponseDtoOutputItemsItemDuesStatus[keyof typeof ListHouseholdsResponseDtoOutputItemsItemDuesStatus];
 
 
 export const ListHouseholdsResponseDtoOutputItemsItemDuesStatus = {
@@ -609,7 +606,6 @@ export type ListHouseholdsResponseDtoOutputItemsItem = {
   street: ListHouseholdsResponseDtoOutputItemsItemStreet;
   /** @nullable */
   primaryResident: ListHouseholdsResponseDtoOutputItemsItemPrimaryResident;
-  /** @nullable */
   duesStatus: ListHouseholdsResponseDtoOutputItemsItemDuesStatus;
   _count: _ListHouseholdsResponseDtoOutputItemsItemCount;
 };
