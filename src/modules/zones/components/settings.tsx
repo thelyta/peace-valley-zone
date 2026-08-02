@@ -12,7 +12,7 @@ import { useUpdateZoneSettings } from "../mutations/use-update-zone-settings";
 import { useFetchZone } from "../queries/use-fetch-zone";
 
 type SettingsForm = {
-  visitorExpiryMinutes: number;
+  visitorExpiryHours: number;
   maxVisitorPartySize: number;
   duesGatePolicy: DuesGatePolicy;
   announcementSecurityVisibility: "true" | "false";
@@ -93,7 +93,7 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
       return;
     }
     form.reset({
-      visitorExpiryMinutes: settings.visitorExpiryMinutes,
+      visitorExpiryHours: settings.visitorExpiryMinutes / 60,
       maxVisitorPartySize: settings.maxVisitorPartySize,
       duesGatePolicy: settings.duesGatePolicy as DuesGatePolicy,
       announcementSecurityVisibility: settings.announcementSecurityVisibility ? "true" : "false",
@@ -104,7 +104,7 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
 
   function submit(values: SettingsForm) {
     save.mutate({
-      visitorExpiryMinutes: values.visitorExpiryMinutes,
+      visitorExpiryMinutes: values.visitorExpiryHours * 60,
       maxVisitorPartySize: values.maxVisitorPartySize,
       duesGatePolicy: values.duesGatePolicy,
       announcementSecurityVisibility: values.announcementSecurityVisibility === "true",
@@ -135,11 +135,12 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
         <h2 className="text-lg font-semibold">General</h2>
         <p className="mt-1 text-sm text-muted-foreground">{query.data.name}</p>
       </div>
-      <Field label="Visitor pass expiry (minutes)">
+      <Field label="Visitor pass expiry (hours)">
         <Input
           type="number"
           min={1}
-          {...form.register("visitorExpiryMinutes", { valueAsNumber: true, min: 1 })}
+          step={0.5}
+          {...form.register("visitorExpiryHours", { valueAsNumber: true, min: 1 })}
         />
       </Field>
       <Field label="Maximum party size">

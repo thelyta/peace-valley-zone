@@ -70,8 +70,6 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
   } | null>(null);
   const [search, setSearch] = useState("");
   const [duesFilter, setDuesFilter] = useState("ALL");
-  const [householdFilter, setHouseholdFilter] = useState("ALL");
-  const [visitationFilter, setVisitationFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   const toast = useToast();
 
@@ -97,10 +95,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
     const matchesDues =
       duesFilter === "ALL" ||
       item.duesStatus === duesFilter;
-    const matchesHousehold = householdFilter === "ALL" || item.status === householdFilter;
-    const matchesVisitation =
-      visitationFilter === "ALL" || item.visitorAccessOverride === visitationFilter;
-    return matchesSearch && matchesDues && matchesHousehold && matchesVisitation;
+    return matchesSearch && matchesDues;
   });
   const pageSize = 25;
   const pageCount = Math.max(1, Math.ceil(filteredItems.length / pageSize));
@@ -124,7 +119,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
         ) : null}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Search households">
           <Input
             type="search"
@@ -148,35 +143,6 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
               { value: "PAID", label: "Paid" },
               { value: "UNPAID", label: "Unpaid" },
               { value: "WAIVED", label: "Waived" },
-            ]}
-          />
-        </Field>
-        <Field label="Household status">
-          <SelectControl
-            value={householdFilter}
-            onValueChange={(value) => {
-              setHouseholdFilter(value);
-              setPage(1);
-            }}
-            options={[
-              { value: "ALL", label: "All households" },
-              { value: "ACTIVE", label: "Active" },
-              { value: "INACTIVE", label: "Inactive" },
-            ]}
-          />
-        </Field>
-        <Field label="Visitation policy">
-          <SelectControl
-            value={visitationFilter}
-            onValueChange={(value) => {
-              setVisitationFilter(value);
-              setPage(1);
-            }}
-            options={[
-              { value: "ALL", label: "All policies" },
-              { value: "INHERIT", label: "Follow zone policy" },
-              { value: "ALLOW", label: "Allow visitation" },
-              { value: "BLOCK", label: "Block visitation" },
             ]}
           />
         </Field>
