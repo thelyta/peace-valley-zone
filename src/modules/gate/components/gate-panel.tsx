@@ -4,7 +4,7 @@ import { CheckCircle2, ScanLine, ShieldCheck, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Button, EmptyState, Field, Icon, Input, Skeleton } from "@/ui";
+import { Badge, Button, EmptyState, Field, Icon, Input, Skeleton } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
 import { userMessageForError } from "@/utils/error-messages";
 import { useAdmitVisitor } from "../mutations/use-admit-visitor";
