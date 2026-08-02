@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
+  DoorOpen,
   Home,
   LogOut,
   Megaphone,
@@ -46,6 +47,7 @@ const sectionIcons: Record<string, LucideIcon> = {
   "/admin/residents": Users,
   "/admin/households": Home,
   "/admin/member-requests": UserPlus,
+  "/admin/visitation": DoorOpen,
   "/admin/announcements": Megaphone,
   "/admin/settings": Settings,
 };
