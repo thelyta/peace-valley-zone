@@ -143,7 +143,7 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
           {...form.register("visitorExpiryHours", { valueAsNumber: true, min: 1 })}
         />
       </Field>
-      <Field label="Maximum party size">
+      <Field label="Maximum visitors number">
         <Input
           type="number"
           min={1}

@@ -14,16 +14,20 @@ export function userMessageForError(error: unknown, fallback: string) {
       return "Your session needs a refresh. Reload the page and try again.";
     case "RATE_LIMITED":
       return error.retryAfter
-        ? `Too many attempts. Try again in ${error.retryAfter} seconds.`
-        : "Too many attempts. Please wait and try again.";
+        ? `Sign-in is temporarily restricted. Try again in ${error.retryAfter} seconds.`
+        : "Sign-in is temporarily restricted. Please wait and try again.";
     case "OTP_INVALID":
-      return "That code is not correct.";
+      return (
+        error.message || "The code you entered is incorrect. Check your latest email and try again."
+      );
     case "OTP_EXPIRED":
       return "That code has expired. Request a new one.";
-    case "OTP_TOO_MANY_ATTEMPTS":
-      return "Too many incorrect codes. Request a new one.";
+    case "OTP_ATTEMPTS_EXHAUSTED":
+      return "This code has been locked after too many incorrect attempts. Request a new code to continue.";
     case "ACCOUNT_INACTIVE":
       return "This account is inactive. Contact estate management.";
+    case "ACCOUNT_NOT_ACTIVATED":
+      return "Your account has not been activated. Use the invitation email to set your password, then sign in.";
     case "GATE_SELECTION_REQUIRED":
       return "Choose which gate your visitor should use.";
     case "PARTY_SIZE_INVALID":

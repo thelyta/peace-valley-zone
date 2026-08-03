@@ -31,7 +31,11 @@ function loginErrorMessage(error: unknown) {
   }
 
   if (error instanceof ApiError) {
-    if (error.code === "ACCOUNT_INACTIVE" || error.code === "RATE_LIMITED") {
+    if (
+      error.code === "ACCOUNT_INACTIVE" ||
+      error.code === "ACCOUNT_NOT_ACTIVATED" ||
+      error.code === "RATE_LIMITED"
+    ) {
       return userMessageForError(error, INVALID_CREDENTIALS_MESSAGE);
     }
     if (error.code === "INVALID_CREDENTIALS" || error.status === 401) {

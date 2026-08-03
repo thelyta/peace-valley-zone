@@ -4,7 +4,6 @@ import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
-import { useFetchGates } from "@/modules/directory/queries/use-fetch-gates";
 import type { VisitorPassStatus } from "@/types/enums";
 import type { TVisitorReportItem } from "@/types/reports";
 import { Badge, Button, Field, SelectControl, ServerDataTable, useToast } from "@/ui";
@@ -41,13 +40,11 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
   const toast = useToast();
   const { values, setValues } = useUrlState();
   const sessionQuery = useFetchSession();
-  const gatesQuery = useFetchGates(zoneId);
   const [exporting, setExporting] = useState(false);
 
   const page = Math.max(1, Number(values.page ?? "1") || 1);
   const pageSize = Math.min(100, Math.max(1, Number(values.pageSize ?? "50") || 50));
   const status = values.status ?? "";
-  const gateId = values.gateId ?? "";
   const startDate = values.startDate ?? "";
   const endDate = values.endDate ?? "";
 
@@ -55,7 +52,6 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
     page,
     pageSize,
     status: status || undefined,
-    gateId: gateId || undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   };
@@ -80,7 +76,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
         header: "Home",
         cell: ({ row }) => `${row.original.household} ${row.original.street}`,
       },
-      { header: "Gate", accessorKey: "gate" },
+      // { header: "Gate", accessorKey: "gate" },
       {
         header: "Status",
         cell: ({ row }) => (
@@ -139,7 +135,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
             ]}
           />
         </Field>
-        <Field label="Gate">
+        {/* <Field label="Gate">
           <SelectControl
             value={gateId}
             onValueChange={(value) =>
@@ -153,7 +149,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
               })),
             ]}
           />
-        </Field>
+        </Field> */}
         <Field label="Page size">
           <SelectControl
             value={String(pageSize)}
@@ -205,7 +201,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
           <article className="rounded-xl border border-border bg-card p-4">
             <p className="font-medium">{row.visitorName}</p>
             <p className="text-sm text-muted-foreground">
-              {row.household} {row.street} · {row.gate}
+              {row.household} {row.street}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <Badge tone={statusTone(row.status)}>{row.status}</Badge>

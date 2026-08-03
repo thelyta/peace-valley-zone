@@ -91,7 +91,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
   const filteredItems = items.filter((item) => {
     const matchesSearch =
       !normalizedSearch ||
-      [item.address, item.label ?? ""].some((value) => value.toLowerCase().includes(normalizedSearch));
+      [item.address, item.houseNumber ?? ""].some((value) => value.toLowerCase().includes(normalizedSearch));
     const matchesDues =
       duesFilter === "ALL" ||
       item.duesStatus === duesFilter;
@@ -128,7 +128,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
               setSearch(event.target.value);
               setPage(1);
             }}
-            placeholder="Address or label"
+              placeholder="Address or house number"
           />
         </Field>
         <Field label="Dues status">
@@ -159,8 +159,8 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
             {visibleItems.map((household) => (
               <li key={household.id} className="rounded-xl border border-border bg-card p-4">
                 <p className="font-medium">{household.address}</p>
-                {household.label && (
-                  <p className="text-sm text-muted-foreground">{household.label}</p>
+                {household.houseNumber && (
+                  <p className="text-sm text-muted-foreground">{household.houseNumber}</p>
                 )}
                 <p className="mt-1 text-sm text-muted-foreground">
                   Primary resident: {household.primaryResident?.fullName ?? "—"}
@@ -217,8 +217,8 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                   <tr className="border-t border-border" key={household.id}>
                     <td className="px-4 py-3">
                       <p className="font-medium">{household.address}</p>
-                      {household.label && (
-                        <p className="text-muted-foreground">{household.label}</p>
+                      {household.houseNumber && (
+                        <p className="text-muted-foreground">{household.houseNumber}</p>
                       )}
                     </td>
                     <td className="px-4 py-3">{household.primaryResident?.fullName ?? "—"}</td>
@@ -335,7 +335,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
 
 const createSchema = z.object({
   address: z.string().trim().min(1, "Enter the full address."),
-  label: z.string().optional(),
+  houseNumber: z.string().optional(),
   fullName: z.string().trim().min(1, "Enter the resident's full name."),
   email: z.string().email("Enter a valid email."),
   phone: z.string().optional(),
@@ -359,7 +359,7 @@ function CreateHouseholdDialog({
     resolver: zodResolver(createSchema),
     defaultValues: {
       address: "",
-      label: "",
+      houseNumber: "",
       fullName: "",
       email: "",
       phone: "",
@@ -378,7 +378,7 @@ function CreateHouseholdDialog({
           create.mutate(
             {
               address: values.address.trim(),
-              label: values.label?.trim() || undefined,
+              houseNumber: values.houseNumber?.trim() || undefined,
               fullName: values.fullName.trim(),
               email: values.email.trim().toLowerCase(),
               phoneE164: values.phone?.trim() || undefined,
@@ -398,8 +398,8 @@ function CreateHouseholdDialog({
         <Field label="Full address" error={form.formState.errors.address?.message}>
           <Input {...form.register("address")} autoComplete="street-address" />
         </Field>
-        <Field label="Label (optional)">
-          <Input {...form.register("label")} autoComplete="off" />
+        <Field label="House Number (optional)">
+          <Input {...form.register("houseNumber")} autoComplete="off" />
         </Field>
         <Field label="Resident full name" error={form.formState.errors.fullName?.message}>
           <Input {...form.register("fullName")} autoComplete="name" />
