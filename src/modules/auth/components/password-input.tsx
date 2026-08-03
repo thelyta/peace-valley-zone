@@ -10,15 +10,15 @@ export function PasswordInput({ className = "", ...props }: InputHTMLAttributes<
 
   return (
     <div className="relative">
-      <Input {...props} type={visible ? "text" : "password"} className={cn("pr-12", className)} />
+      <Input {...props} type={visible ? "text" : "password"} className={cn("pr-11", className)} />
       <button
         type="button"
-        className="absolute inset-y-0 right-1 my-auto inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute right-1 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground focus-visible:outline-none"
         aria-label={visible ? "Hide password" : "Show password"}
         aria-pressed={visible}
         onClick={() => setVisible((current) => !current)}
       >
-        <Icon icon={visible ? EyeOff : Eye} size={20} />
+        <Icon icon={visible ? EyeOff : Eye} size={18} />
       </button>
     </div>
   );

@@ -164,7 +164,7 @@ export function DeviceVerificationForm() {
         }}
         noValidate
       >
-        <div className="space-y-3">
+        <div className="space-y-5">
           <Label htmlFor="device-otp">Six-digit code</Label>
           <InputOTP
             id="device-otp"

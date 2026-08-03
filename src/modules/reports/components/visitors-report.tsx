@@ -24,13 +24,13 @@ const STATUS_OPTIONS: Array<VisitorPassStatus | ""> = [
 function statusTone(status: VisitorPassStatus) {
   switch (status) {
     case "USED":
-      return "neutral" as const;
+      return "good" as const;
     case "PENDING":
       return "warning" as const;
     case "CANCELLED":
       return "danger" as const;
     case "EXPIRED":
-      return "neutral" as const;
+      return "danger" as const;
     default:
       return "neutral" as const;
   }
@@ -74,7 +74,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
       },
       {
         header: "Home",
-        cell: ({ row }) => `${row.original.household} ${row.original.street}`,
+        cell: ({ row }) => row.original.household,
       },
       // { header: "Gate", accessorKey: "gate" },
       {
@@ -200,9 +200,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
         mobileCard={(row) => (
           <article className="rounded-xl border border-border bg-card p-4">
             <p className="font-medium">{row.visitorName}</p>
-            <p className="text-sm text-muted-foreground">
-              {row.household} {row.street}
-            </p>
+            <p className="text-sm text-muted-foreground">{row.household}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <Badge tone={statusTone(row.status)}>{row.status}</Badge>
               <Badge>{row.partySize} people</Badge>
