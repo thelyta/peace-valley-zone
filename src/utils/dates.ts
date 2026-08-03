@@ -1,8 +1,12 @@
 export function formatDateTime(value?: string, timeZone?: string) {
   if (!value) return "—";
   return new Intl.DateTimeFormat("en-NG", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
     timeZone,
   }).format(new Date(value));
 }

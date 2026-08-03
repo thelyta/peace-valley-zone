@@ -1,12 +1,13 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAppStore } from "@/lib/app.store";
 import { ApiError } from "@/lib/errors";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { getDefaultRouteForZone } from "@/modules/auth/utils/permission";
-import { Skeleton } from "@/ui";
+import { Icon } from "@/ui";
 
 export default function Home() {
   const router = useRouter();
@@ -42,9 +43,9 @@ export default function Home() {
   }, [activeZoneId, query.data, query.error, query.isPending, router]);
 
   return (
-    <div className="min-h-screen p-4">
-      <Skeleton className="h-16 w-full" />
-      <Skeleton className="mx-auto mt-8 h-64 max-w-6xl" />
+    <div className="flex min-h-dvh items-center justify-center bg-background" role="status">
+      <Icon icon={Loader2} size={32} className="animate-spin text-muted-foreground" />
+      <span className="sr-only">Loading</span>
     </div>
   );
 }

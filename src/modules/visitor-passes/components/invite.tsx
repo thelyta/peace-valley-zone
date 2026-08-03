@@ -22,6 +22,7 @@ import {
 } from "@/ui";
 import { eligibilityExplanation } from "@/utils/error-messages";
 import { normalizeNigerianPhone } from "@/utils/phone";
+import { toTitleCase } from "@/utils/string";
 import { useCreateVisitorPass } from "../mutations/use-create-visitor-pass";
 import { useFetchEntryGates } from "../queries/use-fetch-entry-gates";
 import { useFetchVisitorEligibility } from "../queries/use-fetch-visitor-eligibility";
@@ -202,7 +203,7 @@ export function VisitorInvite({ zoneId, householdId }: { zoneId: string; househo
                     <SelectContent>
                       {gates.map((gate) => (
                         <SelectItem key={gate.id} value={gate.id}>
-                          {gate.name}
+                          {toTitleCase(gate.name)}
                           {gate.description ? ` — ${gate.description}` : ""}
                           {gate.isDefault ? " (default)" : ""}
                         </SelectItem>
@@ -223,7 +224,8 @@ export function VisitorInvite({ zoneId, householdId }: { zoneId: string; househo
             </div>
           ) : gates[0] ? (
             <p className="text-sm text-muted-foreground">
-              Entry gate: <span className="font-medium text-foreground">{gates[0].name}</span>
+              Entry gate:{" "}
+              <span className="font-medium text-foreground">{toTitleCase(gates[0].name)}</span>
             </p>
           ) : (
             <p className="rounded-lg bg-warning-soft p-3 text-sm text-warning-soft-foreground">

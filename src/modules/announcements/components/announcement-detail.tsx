@@ -85,7 +85,7 @@ export function AnnouncementCard({
             ? `Published ${formatDateTime(item.publishedAt)}`
             : `Created ${formatDateTime(item.createdAt)}`}
         </p>
-        <Button variant="secondary" onClick={() => onOpen?.(item)}>
+        <Button onClick={() => onOpen?.(item)}>
           Open
         </Button>
       </div>

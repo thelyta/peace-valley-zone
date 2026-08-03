@@ -6,6 +6,7 @@ import type { TVisitorPass } from "@/types/visitor-passes";
 import { Badge, ConfirmDialog, EmptyState, ErrorState, Icon, Skeleton, useToast } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
 import { userMessageForError } from "@/utils/error-messages";
+import { toTitleCase } from "@/utils/string";
 import { useCancelVisitorPass } from "../mutations/use-cancel-visitor-pass";
 import { useRevealVisitorPass } from "../mutations/use-reveal-visitor-pass";
 import { useFetchVisitorPasses } from "../queries/use-fetch-visitor-passes";
@@ -16,8 +17,9 @@ function statusTone(status: string): "neutral" | "good" | "warning" | "danger" {
     case "PENDING":
       return "warning";
     case "USED":
+      return "good";
     case "EXPIRED":
-      return "neutral";
+      return "danger";
     case "CANCELLED":
       return "danger";
     default:
@@ -154,8 +156,10 @@ function VisitorPassCard({
   onCancel: () => void;
   cancelPending: boolean;
 }) {
-  const street = pass.destinationStreet?.name;
-  const gate = pass.destinationGate?.name;
+  const street = pass.destinationStreet?.name
+    ? toTitleCase(pass.destinationStreet.name)
+    : undefined;
+  const gate = pass.destinationGate?.name ? toTitleCase(pass.destinationGate.name) : undefined;
   const canOpen = pass.status === "PENDING";
 
   return (
