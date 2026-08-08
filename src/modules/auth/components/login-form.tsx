@@ -91,7 +91,10 @@ export function LoginForm() {
       });
       router.replace(destination);
     } catch (error) {
-      form.setError("root", { message: loginErrorMessage(error) });
+      form.setError("root", {
+        type: error instanceof ApiError ? (error.code ?? "server") : "server",
+        message: loginErrorMessage(error),
+      });
     }
   }
 
@@ -114,6 +117,14 @@ export function LoginForm() {
             </p>
           ) : null}
         </div>
+        {form.formState.errors.root?.type === "ACCOUNT_NOT_ACTIVATED" ? (
+          <Link
+            className="flex min-h-11 items-center justify-center rounded-md border border-border px-4 text-sm font-medium text-primary hover:bg-muted"
+            href="/request-activation"
+          >
+            Send a new activation email
+          </Link>
+        ) : null}
         <Button type="submit" className="w-full" size="lg" disabled={login.isPending}>
           <Icon icon={LogIn} size={24} />
           {login.isPending ? "Signing in…" : "Sign in"}

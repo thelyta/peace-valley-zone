@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ApiError } from "@/lib/errors";
 import { Button, Field } from "@/ui";
 import { userMessageForError } from "@/utils/error-messages";
 import { useActivateAccount } from "../mutations/use-activate-account";
@@ -33,7 +34,6 @@ export function PasswordForm({ mode }: { mode: "activate" | "reset" }) {
   const pending = activate.isPending || reset.isPending;
 
   const [success, setSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<PasswordValues>({
     resolver: zodResolver(passwordSchema),
@@ -44,14 +44,16 @@ export function PasswordForm({ mode }: { mode: "activate" | "reset" }) {
   });
 
   async function submit(values: PasswordValues) {
-    setErrorMessage("");
+    form.clearErrors("root");
 
     if (!token) {
-      setErrorMessage(
-        mode === "activate"
-          ? "This activation link is incomplete. Request a new invitation."
-          : "This reset link is incomplete. Request a new password reset email.",
-      );
+      form.setError("root", {
+        type: "TOKEN_INVALID",
+        message:
+          mode === "activate"
+            ? "This activation link is incomplete. Request a new invitation."
+            : "This reset link is incomplete. Request a new password reset email.",
+      });
       return;
     }
 
@@ -63,14 +65,15 @@ export function PasswordForm({ mode }: { mode: "activate" | "reset" }) {
       }
       setSuccess(true);
     } catch (error) {
-      setErrorMessage(
-        userMessageForError(
+      form.setError("root", {
+        type: error instanceof ApiError ? (error.code ?? "server") : "server",
+        message: userMessageForError(
           error,
           mode === "activate"
             ? "Unable to activate this account. Try again or request a new invitation."
             : "Unable to reset your password. Try again or request a new reset email.",
         ),
-      );
+      });
     }
   }
 
@@ -116,15 +119,23 @@ export function PasswordForm({ mode }: { mode: "activate" | "reset" }) {
           <PasswordInput autoComplete="new-password" {...form.register("confirmPassword")} />
         </Field>
         <div aria-live="polite" className="min-h-5">
-          {errorMessage ? (
+          {form.formState.errors.root?.message ? (
             <p role="alert" className="text-sm text-destructive">
-              {errorMessage}
+              {form.formState.errors.root.message}
             </p>
           ) : null}
         </div>
         <Button type="submit" className="w-full" size="lg" disabled={pending}>
           {pending ? "Saving…" : "Continue"}
         </Button>
+        {mode === "activate" && (!token || form.formState.errors.root?.type === "TOKEN_INVALID") ? (
+          <Link
+            href="/request-activation"
+            className="flex min-h-11 items-center justify-center text-sm font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Request a new activation email
+          </Link>
+        ) : null}
       </form>
     </PublicShell>
   );

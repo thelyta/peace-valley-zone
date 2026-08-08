@@ -4,7 +4,8 @@ export function isPublicUnsafePath(path: string) {
     path === "/v1/auth/login" ||
     path === "/v1/auth/password/forgot" ||
     path === "/v1/auth/password/reset" ||
-    path === "/v1/auth/account/activate"
+    path === "/v1/auth/account/activate" ||
+    path === "/v1/auth/account/invitation/resend"
   ) {
     return true;
   }

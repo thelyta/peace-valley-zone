@@ -28,6 +28,7 @@ import {
 } from "@/ui";
 import { normalizeNigerianPhone } from "@/utils/phone";
 import { useInviteZoneUser } from "../mutations/use-invite-zone-user";
+import { useResendActivationInvite } from "../mutations/use-resend-activation-invite";
 import { useRevokeZoneUserAccess } from "../mutations/use-revoke-zone-user-access";
 import { useFetchZoneUsers } from "../queries/use-fetch-zone-users";
 
@@ -51,9 +52,12 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [assignUser, setAssignUser] = useState<TZoneUserItem | null>(null);
   const [revokeUser, setRevokeUser] = useState<TZoneUserItem | null>(null);
+  const [resendUser, setResendUser] = useState<TZoneUserItem | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const revoke = useRevokeZoneUserAccess(zoneId);
+  const resendInvite = useResendActivationInvite(zoneId);
+  const toast = useToast();
 
   const session = sessionQuery.data;
   const canInvite = session != null && hasPermission(session, zoneId, Permission.USERS_MANAGE);
@@ -134,14 +138,28 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                   </Button>
                 )}
                 {canInvite && user.membershipStatus === "ACTIVE" ? (
-                  <Button
-                    className="mt-3"
-                    variant="destructive"
-                    disabled={revoke.isPending}
-                    onClick={() => setRevokeUser(user)}
-                  >
-                    Revoke access
-                  </Button>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {user.status === "INVITED" ? (
+                      <Button
+                        variant="secondary"
+                        disabled={
+                          resendInvite.isPending && resendInvite.variables === user.membershipId
+                        }
+                        onClick={() => setResendUser(user)}
+                      >
+                        {resendInvite.isPending && resendInvite.variables === user.membershipId
+                          ? "Sending…"
+                          : "Resend invite"}
+                      </Button>
+                    ) : null}
+                    <Button
+                      variant="destructive"
+                      disabled={revoke.isPending}
+                      onClick={() => setRevokeUser(user)}
+                    >
+                      Revoke access
+                    </Button>
+                  </div>
                 ) : null}
               </li>
             ))}
@@ -177,13 +195,30 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                           </Button>
                         ) : null}
                         {canInvite && user.membershipStatus === "ACTIVE" ? (
-                          <Button
-                            variant="destructive"
-                            disabled={revoke.isPending}
-                            onClick={() => setRevokeUser(user)}
-                          >
-                            Revoke access
-                          </Button>
+                          <>
+                            {user.status === "INVITED" ? (
+                              <Button
+                                variant="secondary"
+                                disabled={
+                                  resendInvite.isPending &&
+                                  resendInvite.variables === user.membershipId
+                                }
+                                onClick={() => setResendUser(user)}
+                              >
+                                {resendInvite.isPending &&
+                                resendInvite.variables === user.membershipId
+                                  ? "Sending…"
+                                  : "Resend invite"}
+                              </Button>
+                            ) : null}
+                            <Button
+                              variant="destructive"
+                              disabled={revoke.isPending}
+                              onClick={() => setRevokeUser(user)}
+                            >
+                              Revoke access
+                            </Button>
+                          </>
                         ) : null}
                         {!canAssign && !(canInvite && user.membershipStatus === "ACTIVE")
                           ? "—"
@@ -245,6 +280,23 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
         onConfirm={() => {
           if (!revokeUser) return;
           revoke.mutate(revokeUser.membershipId, { onSuccess: () => setRevokeUser(null) });
+        }}
+      />
+      <ConfirmDialog
+        open={Boolean(resendUser)}
+        title="Resend activation invitation?"
+        detail={`We’ll ensure an activation email is queued for ${resendUser?.email ?? "this user"}. A newly generated link replaces older activation links.`}
+        confirmLabel="Send invitation"
+        pending={resendInvite.isPending}
+        onClose={() => setResendUser(null)}
+        onConfirm={() => {
+          if (!resendUser) return;
+          resendInvite.mutate(resendUser.membershipId, {
+            onSuccess: (result) => {
+              toast(`Activation invitation queued for ${result.email}.`);
+              setResendUser(null);
+            },
+          });
         }}
       />
     </section>

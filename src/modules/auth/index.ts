@@ -10,6 +10,7 @@ export {
   ForgotPasswordForm,
   LoginForm,
   PasswordForm,
+  RequestActivationInviteForm,
 } from "./components";
 export { SessionsList } from "./components/sessions-panel";
 export { useActivateAccount } from "./mutations/use-activate-account";
@@ -17,6 +18,7 @@ export { useChangePassword } from "./mutations/use-change-password";
 export { useForgotPassword } from "./mutations/use-forgot-password";
 export { useLogin } from "./mutations/use-login";
 export { useLogout } from "./mutations/use-logout";
+export { useRequestActivationInvite } from "./mutations/use-request-activation-invite";
 export { useResendDeviceChallenge } from "./mutations/use-resend-device-challenge";
 export { useResetPassword } from "./mutations/use-reset-password";
 export { useRevokeOtherSessions } from "./mutations/use-revoke-other-sessions";
