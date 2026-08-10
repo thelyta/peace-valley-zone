@@ -5,12 +5,10 @@ export type {
 } from "@/types/households";
 export {
   HouseholdMembersPanel,
-  HouseholdsDirectory,
   householdLabel,
   householdMembersQueryOptions,
   householdsForZone,
   householdsQueryOptions,
-  MemberRequestsList,
   MyMemberRequestsList,
   RequestHouseholdMemberForm,
   useAddHouseholdMember,

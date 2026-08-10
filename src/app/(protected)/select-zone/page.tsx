@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/app.store";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { getDefaultRouteForZone } from "@/modules/auth/utils/permission";
-import { Skeleton } from "@/ui";
+import { ErrorState, Skeleton } from "@/ui";
+import { userMessageForError } from "@/utils/error-messages";
 
 export default function SelectZonePage() {
-  const { data, isLoading } = useFetchSession();
+  const query = useFetchSession();
+  const { data, isLoading } = query;
   const router = useRouter();
   const setZone = useAppStore((state) => state.setActiveZoneId);
 
@@ -17,6 +19,15 @@ export default function SelectZonePage() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-24 w-full" />
       </section>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <ErrorState
+        error={userMessageForError(query.error, "Your zones could not be loaded.")}
+        retry={() => void query.refetch()}
+      />
     );
   }
 

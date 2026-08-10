@@ -4,13 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAppStore } from "@/lib/app.store";
-import { onUnauthorized } from "@/lib/client";
 import { ApiError } from "@/lib/errors";
+import { onUnauthorized } from "@/lib/http";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { getDefaultRouteForZone } from "@/modules/auth/utils/permission";
 import { routeAllowed } from "@/modules/auth/utils/route-access";
 import { AppShell } from "@/modules/layout/components/app-shell";
-import { Skeleton } from "@/ui";
+import { ErrorState, Skeleton } from "@/ui";
+import { userMessageForError } from "@/utils/error-messages";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -68,6 +69,18 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       router.replace("/select-zone");
     }
   }, [activeZoneId, pathname, query.data, router]);
+
+  if (query.isError) {
+    if (query.error instanceof ApiError && query.error.status === 401) return null;
+    return (
+      <div className="min-h-screen p-4">
+        <ErrorState
+          error={userMessageForError(query.error, "Your session could not be loaded.")}
+          retry={() => void query.refetch()}
+        />
+      </div>
+    );
+  }
 
   if (query.isPending || !query.data) {
     return (

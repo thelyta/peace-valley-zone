@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { directoryControllerUsers } from "@/api/generated/directory/directory";
-import { residentsKeys } from "@/modules/residents/query-keys";
+import { residentsKeys } from "@/modules/admin/residents/query-keys";
 
 export const zoneUsersQueryOptions = (zoneId: string) =>
   queryOptions({

@@ -7,6 +7,7 @@ import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { GatePanel, RecentGateEvents, useFetchMyGates } from "@/modules/gate";
 import {
   EmptyState,
+  ErrorState,
   Label,
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import {
   SelectValue,
   Skeleton,
 } from "@/ui";
+import { userMessageForError } from "@/utils/error-messages";
 
 export default function SecurityPage() {
   const { data, isLoading } = useFetchSession();
@@ -49,6 +51,15 @@ export default function SecurityPage() {
         <Skeleton className="h-64 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
+    );
+  }
+
+  if (gatesQuery.isError) {
+    return (
+      <ErrorState
+        error={userMessageForError(gatesQuery.error, "Gate assignments could not be loaded.")}
+        retry={() => void gatesQuery.refetch()}
+      />
     );
   }
 

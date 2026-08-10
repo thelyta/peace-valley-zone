@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useEstateTimezone } from "@/modules/zones";
 import type { TAnnouncement } from "@/types/announcements";
 import type { AnnouncementStatus } from "@/types/enums";
-import { Badge, Button, Dialog, useToast } from "@/ui";
+import { Badge, Button, ConfirmDialog, Dialog, useToast } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
 import { useArchiveAnnouncement } from "../mutations/use-archive-announcement";
 import { useMarkAnnouncementRead } from "../mutations/use-mark-announcement-read";
@@ -36,6 +37,8 @@ export function AnnouncementCard({
   const toast = useToast();
   const publish = usePublishAnnouncement(zoneId);
   const archive = useArchiveAnnouncement(zoneId);
+  const timeZone = useEstateTimezone(zoneId);
+  const [archiveOpen, setArchiveOpen] = useState(false);
 
   return (
     <article className="rounded-xl border border-border bg-card p-5">
@@ -68,9 +71,7 @@ export function AnnouncementCard({
               <Button
                 variant="secondary"
                 disabled={archive.isPending}
-                onClick={() =>
-                  archive.mutate(item.id, { onSuccess: () => toast("Announcement archived.") })
-                }
+                onClick={() => setArchiveOpen(true)}
               >
                 Archive
               </Button>
@@ -82,13 +83,29 @@ export function AnnouncementCard({
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
           {item.publishedAt
-            ? `Published ${formatDateTime(item.publishedAt)}`
-            : `Created ${formatDateTime(item.createdAt)}`}
+            ? `Published ${formatDateTime(item.publishedAt, timeZone)}`
+            : `Created ${formatDateTime(item.createdAt, timeZone)}`}
         </p>
-        <Button onClick={() => onOpen?.(item)}>
-          Open
-        </Button>
+        <Button onClick={() => onOpen?.(item)}>Open</Button>
       </div>
+      <ConfirmDialog
+        open={archiveOpen}
+        title="Archive announcement?"
+        detail="Archived announcements are removed from the resident feed."
+        confirmLabel="Archive"
+        pending={archive.isPending}
+        onClose={() => {
+          if (!archive.isPending) setArchiveOpen(false);
+        }}
+        onConfirm={() =>
+          archive.mutate(item.id, {
+            onSuccess: () => {
+              setArchiveOpen(false);
+              toast("Announcement archived.");
+            },
+          })
+        }
+      />
     </article>
   );
 }
@@ -104,6 +121,7 @@ export function AnnouncementDetailDialog({
 }) {
   const markRead = useMarkAnnouncementRead(zoneId);
   const markedId = useRef<string | null>(null);
+  const timeZone = useEstateTimezone(zoneId);
 
   useEffect(() => {
     if (!item || item.read || item.status !== "PUBLISHED") {
@@ -127,8 +145,8 @@ export function AnnouncementDetailDialog({
         <p className="whitespace-pre-wrap text-base leading-relaxed text-foreground">{item.body}</p>
         <p className="text-sm text-muted-foreground">
           {item.publishedAt
-            ? `Published ${formatDateTime(item.publishedAt)}`
-            : `Created ${formatDateTime(item.createdAt)}`}
+            ? `Published ${formatDateTime(item.publishedAt, timeZone)}`
+            : `Created ${formatDateTime(item.createdAt, timeZone)}`}
         </p>
       </div>
     </Dialog>

@@ -52,6 +52,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const setActiveZoneId = useAppStore((state) => state.setActiveZoneId);
+  const clearSelection = useAppStore((state) => state.clearSelection);
   const login = useLogin();
   const form = useForm<CredentialsValues>({
     resolver: zodResolver(credentialsSchema),
@@ -87,6 +88,7 @@ export function LoginForm() {
         csrfToken: result.csrfToken,
         queryClient,
         setActiveZoneId,
+        clearSelection,
         returnTo: searchParams.get("returnTo"),
       });
       router.replace(destination);

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { directoryControllerAssignments } from "@/api/generated/directory/directory";
 import type { SetSecurityGateAssignmentsDto } from "@/api/generated/estatelyAPI.schemas";
-import { residentsKeys } from "@/modules/residents/query-keys";
+import { residentsKeys } from "@/modules/admin/residents/query-keys";
 import { handleApiError } from "@/utils/error";
 
 export const useSetSecurityGateAssignments = (zoneId: string) => {

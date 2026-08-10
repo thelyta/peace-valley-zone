@@ -41,6 +41,7 @@ export function DeviceVerificationForm() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const setActiveZoneId = useAppStore((state) => state.setActiveZoneId);
+  const clearSelection = useAppStore((state) => state.clearSelection);
   const verify = useVerifyDevice();
   const resend = useResendDeviceChallenge();
 
@@ -91,6 +92,7 @@ export function DeviceVerificationForm() {
         csrfToken: result.csrfToken,
         queryClient,
         setActiveZoneId,
+        clearSelection,
         returnTo: searchParams.get("returnTo"),
       });
       router.replace(destination);

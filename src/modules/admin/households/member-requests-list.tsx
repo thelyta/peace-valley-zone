@@ -1,6 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import {
+  useApproveHouseholdMemberRequest,
+  useRejectHouseholdMemberRequest,
+} from "@/modules/households/mutations/use-review-household-member-request";
+import { useFetchMemberRequests } from "@/modules/households/queries/use-fetch-member-requests";
+import { useEstateTimezone } from "@/modules/zones";
 import type { THouseholdMemberRequest } from "@/types/member-requests";
 import {
   Badge,
@@ -15,11 +21,6 @@ import {
   useToast,
 } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
-import {
-  useApproveHouseholdMemberRequest,
-  useRejectHouseholdMemberRequest,
-} from "../mutations/use-review-household-member-request";
-import { useFetchMemberRequests } from "../queries/use-fetch-member-requests";
 
 function statusTone(status: THouseholdMemberRequest["status"]) {
   switch (status) {
@@ -34,7 +35,7 @@ function statusTone(status: THouseholdMemberRequest["status"]) {
   }
 }
 
-function RequestDetails({ item }: { item: THouseholdMemberRequest }) {
+function RequestDetails({ item, timeZone }: { item: THouseholdMemberRequest; timeZone?: string }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -63,12 +64,12 @@ function RequestDetails({ item }: { item: THouseholdMemberRequest }) {
         </div>
         <div>
           <dt className="text-muted-foreground">Submitted</dt>
-          <dd className="font-medium">{formatDateTime(item.createdAt)}</dd>
+          <dd className="font-medium">{formatDateTime(item.createdAt, timeZone)}</dd>
         </div>
         {item.reviewedAt ? (
           <div>
             <dt className="text-muted-foreground">Reviewed</dt>
-            <dd className="font-medium">{formatDateTime(item.reviewedAt)}</dd>
+            <dd className="font-medium">{formatDateTime(item.reviewedAt, timeZone)}</dd>
           </div>
         ) : null}
       </dl>
@@ -89,6 +90,7 @@ function RequestDetails({ item }: { item: THouseholdMemberRequest }) {
 }
 
 export function MemberRequestsList({ zoneId }: { zoneId: string }) {
+  const timeZone = useEstateTimezone(zoneId);
   const toast = useToast();
   const query = useFetchMemberRequests(zoneId);
   const approve = useApproveHouseholdMemberRequest(zoneId);
@@ -141,7 +143,7 @@ export function MemberRequestsList({ zoneId }: { zoneId: string }) {
                   {item.relationship} · {item.requestedBy.fullName}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Submitted {formatDateTime(item.createdAt)}
+                  Submitted {formatDateTime(item.createdAt, timeZone)}
                 </p>
                 <Button className="mt-4" variant="secondary" onClick={() => setSelected(item)}>
                   View details
@@ -176,7 +178,7 @@ export function MemberRequestsList({ zoneId }: { zoneId: string }) {
                     <td className="px-4 py-3">
                       <Badge tone={statusTone(item.status)}>{item.status}</Badge>
                     </td>
-                    <td className="px-4 py-3">{formatDateTime(item.createdAt)}</td>
+                    <td className="px-4 py-3">{formatDateTime(item.createdAt, timeZone)}</td>
                     <td className="px-4 py-3">
                       <Button variant="secondary" onClick={() => setSelected(item)}>
                         View details
@@ -198,7 +200,7 @@ export function MemberRequestsList({ zoneId }: { zoneId: string }) {
       >
         {selected ? (
           <div className="space-y-5">
-            <RequestDetails item={selected} />
+            <RequestDetails item={selected} timeZone={timeZone} />
             {selected.status === "PENDING" ? (
               <div className="flex flex-wrap gap-2">
                 <Button

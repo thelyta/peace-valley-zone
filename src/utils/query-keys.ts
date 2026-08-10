@@ -1,10 +1,10 @@
+import { residentsKeys } from "@/modules/admin/residents/query-keys";
 import { announcementsKeys } from "@/modules/announcements/query-keys";
 import { authKeys } from "@/modules/auth/query-keys";
 import { directoryKeys } from "@/modules/directory/query-keys";
 import { gateKeys } from "@/modules/gate/query-keys";
 import { householdsKeys } from "@/modules/households/query-keys";
 import { reportsKeys } from "@/modules/reports/query-keys";
-import { residentsKeys } from "@/modules/residents/query-keys";
 import { visitorPassesKeys } from "@/modules/visitor-passes/query-keys";
 import { zonesKeys } from "@/modules/zones/query-keys";
 

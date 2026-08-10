@@ -51,6 +51,11 @@ export function adminNavItems(session: Session, zoneId: string): NavItem[] {
       visible: hasPermission(session, zoneId, Permission.HOUSEHOLDS_MANAGE),
     },
     {
+      href: "/admin/residents",
+      label: "Residents",
+      visible: hasPermission(session, zoneId, Permission.USERS_MANAGE),
+    },
+    {
       href: "/admin/member-requests",
       label: "Member requests",
       visible: hasPermission(session, zoneId, Permission.HOUSEHOLDS_MANAGE),

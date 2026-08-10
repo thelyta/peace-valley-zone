@@ -44,7 +44,9 @@ export function PublicShell({
             <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
               {title}
             </h1>
-            {description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}
+            {description ? (
+              <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+            ) : null}
             <div className="mt-6">{children}</div>
           </div>
         </section>

@@ -5,6 +5,7 @@ import { Ticket, UserPlus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import { useEstateTimezone } from "@/modules/zones";
 import {
   Button,
   ErrorState,
@@ -46,6 +47,7 @@ function defaultGateId(items: { id: string; isDefault: boolean }[]) {
 }
 
 export function VisitorInvite({ zoneId, householdId }: { zoneId: string; householdId: string }) {
+  const timeZone = useEstateTimezone(zoneId);
   const idempotencyKeyRef = useRef(crypto.randomUUID());
   const [created, setCreated] = useState<ShareableVisitorPass | null>(null);
   const [replayNotice, setReplayNotice] = useState("");
@@ -175,7 +177,9 @@ export function VisitorInvite({ zoneId, householdId }: { zoneId: string; househo
         </p>
       ) : null}
 
-      {created ? <GateTicketSheet pass={created} open onClose={() => setCreated(null)} /> : null}
+      {created ? (
+        <GateTicketSheet pass={created} open timeZone={timeZone} onClose={() => setCreated(null)} />
+      ) : null}
 
       {replayNotice ? (
         <p className="mt-4 rounded-lg bg-muted p-3 text-sm text-foreground" role="status">

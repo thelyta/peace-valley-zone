@@ -13,10 +13,12 @@ export function GateTicketSheet({
   pass,
   open,
   onClose,
+  timeZone,
 }: {
   pass: ShareableVisitorPass;
   open: boolean;
   onClose: () => void;
+  timeZone?: string;
 }) {
   const [copied, setCopied] = useState(false);
   const street = pass.destinationStreet?.name ?? pass.streetName;
@@ -27,7 +29,7 @@ export function GateTicketSheet({
     `For: ${pass.partySize} ${pass.partySize === 1 ? "person" : "people"}`,
     street && gate ? `Destination: ${street} via ${gate}` : street ? `Street: ${street}` : null,
     `Code: ${pass.code}`,
-    `Expires: ${formatDateTime(pass.expiresAt)}`,
+    `Expires: ${formatDateTime(pass.expiresAt, timeZone)}`,
     "This code works once. Please show it at the gate.",
   ]
     .filter(Boolean)
@@ -93,7 +95,9 @@ export function GateTicketSheet({
           ) : null}
           <div className="flex justify-between gap-3">
             <dt className="text-muted-foreground">Expires</dt>
-            <dd className="font-medium text-foreground">{formatDateTime(pass.expiresAt)}</dd>
+            <dd className="font-medium text-foreground">
+              {formatDateTime(pass.expiresAt, timeZone)}
+            </dd>
           </div>
         </dl>
 

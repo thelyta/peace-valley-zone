@@ -55,7 +55,8 @@ export function ServerDataTable<T>({
     onPaginationChange,
     onSortingChange,
     manualPagination: true,
-    manualSorting: true,
+    manualSorting: Boolean(onSortingChange),
+    enableSorting: Boolean(onSortingChange),
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => getRowId(row),
   });

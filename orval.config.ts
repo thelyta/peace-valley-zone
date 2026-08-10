@@ -21,12 +21,6 @@ if (!backendUrl && !process.env.ORVAL_OPENAPI_URL) {
   );
 }
 
-/**
- * Impulse-style Orval: pull the live Nest Swagger document, emit axios clients
- * split by tag, route through `customInstance` (credentials + CSRF).
- *
- * Offline escape hatch: `ORVAL_OPENAPI_URL=../backend/openapi.json pnpm api:generate`
- */
 export default defineConfig({
   estately: {
     hooks: {
@@ -39,9 +33,6 @@ export default defineConfig({
       client: "axios-functions",
       mode: "tags-split",
       target: "./src/api/generated",
-      // Keep the shared schema module available during deployment. Orval's
-      // tags-split output regenerates tag clients but does not always emit the
-      // schema barrel when the output directory starts empty.
       clean: false,
       override: {
         mutator: {

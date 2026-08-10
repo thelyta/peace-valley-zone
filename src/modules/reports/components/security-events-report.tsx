@@ -3,8 +3,9 @@
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useFetchGates } from "@/modules/directory/queries/use-fetch-gates";
+import { useEstateTimezone } from "@/modules/zones";
 import type { GateVerificationResult } from "@/types/enums";
-import type { TSecurityEventReportItem } from "@/types/reports";
+import type { TSecurityEventReportItem, TSecurityEventsReportFilters } from "@/types/reports";
 import { Badge, Field, SelectControl, ServerDataTable } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
 import { useUrlState } from "@/utils/url-state";
@@ -12,7 +13,6 @@ import { useFetchSecurityEventsReport } from "../queries/use-fetch-security-even
 
 const RESULT_OPTIONS: Array<GateVerificationResult | ""> = [
   "",
-  "VALID",
   "ADMITTED",
   "INVALID",
   "EXPIRED",
@@ -24,7 +24,6 @@ const RESULT_OPTIONS: Array<GateVerificationResult | ""> = [
 
 function resultTone(result: GateVerificationResult) {
   switch (result) {
-    case "VALID":
     case "ADMITTED":
       return "good" as const;
     case "EXPIRED":
@@ -41,6 +40,7 @@ function resultTone(result: GateVerificationResult) {
 }
 
 export function SecurityEventsReport({ zoneId }: { zoneId: string }) {
+  const timeZone = useEstateTimezone(zoneId);
   const { values, setValues } = useUrlState();
   const gatesQuery = useFetchGates(zoneId);
 
@@ -49,10 +49,10 @@ export function SecurityEventsReport({ zoneId }: { zoneId: string }) {
   const result = values.result ?? "";
   const gateId = values.gateId ?? "";
 
-  const filters = {
+  const filters: TSecurityEventsReportFilters = {
     page,
     pageSize,
-    result: result || undefined,
+    result: (result || undefined) as TSecurityEventsReportFilters["result"],
     gateId: gateId || undefined,
   };
 
@@ -67,7 +67,7 @@ export function SecurityEventsReport({ zoneId }: { zoneId: string }) {
     () => [
       {
         header: "When",
-        cell: ({ row }) => formatDateTime(row.original.occurredAt),
+        cell: ({ row }) => formatDateTime(row.original.occurredAt, timeZone),
       },
       {
         header: "Result",
@@ -79,7 +79,7 @@ export function SecurityEventsReport({ zoneId }: { zoneId: string }) {
       { header: "Visitor", accessorKey: "visitorName" },
       { header: "Guard", accessorKey: "securityUser" },
     ],
-    [],
+    [timeZone],
   );
 
   return (
@@ -155,7 +155,9 @@ export function SecurityEventsReport({ zoneId }: { zoneId: string }) {
             <div className="mt-2">
               <Badge tone={resultTone(row.result)}>{row.result}</Badge>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">{formatDateTime(row.occurredAt)}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {formatDateTime(row.occurredAt, timeZone)}
+            </p>
           </article>
         )}
       />

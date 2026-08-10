@@ -4,8 +4,9 @@ import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
+import { useEstateTimezone } from "@/modules/zones";
 import type { VisitorPassStatus } from "@/types/enums";
-import type { TVisitorReportItem } from "@/types/reports";
+import type { TVisitorReportFilters, TVisitorReportItem } from "@/types/reports";
 import { Badge, Button, Field, SelectControl, ServerDataTable, useToast } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
 import { userMessageForError } from "@/utils/error-messages";
@@ -41,6 +42,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
   const { values, setValues } = useUrlState();
   const sessionQuery = useFetchSession();
   const [exporting, setExporting] = useState(false);
+  const timeZone = useEstateTimezone(zoneId);
 
   const page = Math.max(1, Number(values.page ?? "1") || 1);
   const pageSize = Math.min(100, Math.max(1, Number(values.pageSize ?? "50") || 50));
@@ -48,10 +50,10 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
   const startDate = values.startDate ?? "";
   const endDate = values.endDate ?? "";
 
-  const filters = {
+  const filters: TVisitorReportFilters = {
     page,
     pageSize,
-    status: status || undefined,
+    status: (status || undefined) as TVisitorReportFilters["status"],
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   };
@@ -87,10 +89,10 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
       { header: "Invited by", accessorKey: "invitedBy" },
       {
         header: "Created",
-        cell: ({ row }) => formatDateTime(row.original.createdAt),
+        cell: ({ row }) => formatDateTime(row.original.createdAt, timeZone),
       },
     ],
-    [],
+    [timeZone],
   );
 
   async function onExport() {
@@ -206,7 +208,7 @@ export function VisitorsReport({ zoneId }: { zoneId: string }) {
               <Badge>{row.partySize} people</Badge>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              Invited by {row.invitedBy} · {formatDateTime(row.createdAt)}
+              Invited by {row.invitedBy} · {formatDateTime(row.createdAt, timeZone)}
             </p>
           </article>
         )}

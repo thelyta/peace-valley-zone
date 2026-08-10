@@ -7,8 +7,7 @@ export const householdsQueryOptions = (zoneId: string) =>
   queryOptions({
     enabled: Boolean(zoneId),
     queryKey: householdsKeys.households.all(zoneId),
-    queryFn: async (): Promise<THouseholdsResponse> =>
-      directoryControllerHouseholds(zoneId) as Promise<THouseholdsResponse>,
+    queryFn: async (): Promise<THouseholdsResponse> => directoryControllerHouseholds(zoneId),
   });
 
 export const useFetchHouseholds = (zoneId: string) => {

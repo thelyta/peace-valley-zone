@@ -8,4 +8,5 @@ export {
   zoneLabel,
   zoneQueryOptions,
 } from "./components";
+export { useEstateTimezone } from "./queries/use-estate-timezone";
 export { zonesKeys } from "./query-keys";

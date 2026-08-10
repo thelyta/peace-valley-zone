@@ -3,20 +3,23 @@
 import { CheckCircle2, ScanLine, ShieldCheck, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { VerifyVisitorResponseDtoOutput } from "@/api/generated/estatelyAPI.schemas";
 import { cn } from "@/lib/utils";
-import { Badge, Button, EmptyState, Field, Icon, Input, Skeleton } from "@/ui";
+import { useEstateTimezone } from "@/modules/zones";
+import { Badge, Button, EmptyState, ErrorState, Field, Icon, Input, Skeleton } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
 import { userMessageForError } from "@/utils/error-messages";
 import { useAdmitVisitor } from "../mutations/use-admit-visitor";
 import { useVerifyVisitor } from "../mutations/use-verify-visitor";
 import { useFetchGateEvents } from "../queries/use-fetch-gate-events";
+import { isCompleteManualVisitorCode } from "../utils/manual-code";
+import { isQrPayload } from "../utils/scan";
 
 export type { TGateEvent, TMyGate } from "@/types/gate";
 export { myGatesQueryOptions, useFetchMyGates } from "../queries/use-fetch-my-gates";
 
 function resultTone(result: string): "neutral" | "good" | "warning" | "danger" {
   switch (result) {
-    case "VALID":
     case "ADMITTED":
       return "good";
     case "EXPIRED":
@@ -79,8 +82,17 @@ export function GatePanel({
 }) {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
-  const [messageTone, setMessageTone] = useState<"neutral" | "good" | "danger">("neutral");
+  const [messageTone, setMessageTone] = useState<"neutral" | "good" | "danger" | "warning">(
+    "neutral",
+  );
+  const [review, setReview] = useState<{
+    pass: Extract<VerifyVisitorResponseDtoOutput, { valid: true }>;
+    proof: { method: "MANUAL"; code: string } | { method: "QR"; token: string };
+  } | null>(null);
+  const [observedPartySize, setObservedPartySize] = useState("");
+  const timeZone = useEstateTimezone(zoneId);
   const lastSeededCode = useRef("");
+  const lastCheckedCode = useRef("");
 
   const verify = useVerifyVisitor(zoneId, gateId);
   const admit = useAdmitVisitor(zoneId, gateId);
@@ -91,6 +103,9 @@ export function GatePanel({
     setMessage("");
     setCode("");
     setMessageTone("neutral");
+    setReview(null);
+    setObservedPartySize("");
+    lastCheckedCode.current = "";
   }
 
   const check = useCallback(
@@ -99,7 +114,12 @@ export function GatePanel({
       if (!trimmed) {
         return;
       }
+      if (lastCheckedCode.current === trimmed) {
+        return;
+      }
+      lastCheckedCode.current = trimmed;
       setMessage("");
+      setReview(null);
       try {
         const response = await verifyAsync(trimmed);
         if (!response.valid || !response.passId) {
@@ -111,17 +131,50 @@ export function GatePanel({
           );
           return;
         }
-        await admitAsync({ passId: response.passId });
-        setMessageTone("good");
-        setMessage("Admission confirmed.");
-        setCode("");
+        const proof = isQrPayload(trimmed)
+          ? ({ method: "QR", token: trimmed } as const)
+          : ({ method: "MANUAL", code: trimmed } as const);
+        setReview({ pass: response, proof });
+        setObservedPartySize(String(response.partySize));
+        setMessageTone("neutral");
       } catch (error) {
         setMessageTone("danger");
         setMessage(userMessageForError(error, "This pass could not be verified."));
       }
     },
-    [admitAsync, verifyAsync],
+    [verifyAsync],
   );
+
+  async function admitReviewedPass() {
+    if (!review) return;
+    const parsedPartySize = Number(observedPartySize);
+    if (!Number.isInteger(parsedPartySize) || parsedPartySize < 1) {
+      setMessageTone("danger");
+      setMessage("Enter the number of visitors actually present.");
+      return;
+    }
+    setMessage("");
+    try {
+      await admitAsync({
+        passId: review.pass.passId,
+        proof: review.proof,
+        observedPartySize: parsedPartySize,
+      });
+      setReview(null);
+      setMessageTone("good");
+      setMessage("Admission confirmed.");
+      setCode("");
+      lastCheckedCode.current = "";
+    } catch (error) {
+      setMessageTone("warning");
+      setMessage(
+        userMessageForError(
+          error,
+          "Admission was not confirmed. Check recent events before trying again.",
+        ),
+      );
+    }
+  }
 
   useEffect(() => {
     if (!initialCode || initialCode === lastSeededCode.current) {
@@ -133,20 +186,27 @@ export function GatePanel({
     void check(initialCode);
   }, [check, initialCode]);
 
+  useEffect(() => {
+    if (
+      review ||
+      verify.isPending ||
+      admit.isPending ||
+      isQrPayload(code) ||
+      !isCompleteManualVisitorCode(code)
+    ) {
+      return;
+    }
+    void check(code);
+  }, [admit.isPending, check, code, review, verify.isPending]);
+
   const showSuccess = messageTone === "good" && Boolean(message);
-  const showFailure = messageTone === "danger" && Boolean(message);
+  const showFailure = (messageTone === "danger" || messageTone === "warning") && Boolean(message);
 
   return (
     <section className="space-y-4">
       <div className="rounded-xl border border-border bg-card p-5">
         <h2 className="text-xl font-semibold tracking-tight">Check visitor pass</h2>
-        <form
-          className="mt-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void check(code);
-          }}
-        >
+        <div className="mt-4">
           <Field label="Visitor code">
             <Input
               className="min-h-14 text-center font-mono text-2xl font-semibold tracking-[0.3em] uppercase"
@@ -154,23 +214,28 @@ export function GatePanel({
               onChange={(event) => {
                 const next = event.target.value;
                 setCode(next.startsWith("pvz://") ? next : next.toUpperCase());
+                setMessage("");
+                setMessageTone("neutral");
+                lastCheckedCode.current = "";
               }}
+              disabled={verify.isPending || admit.isPending || Boolean(review)}
+              aria-describedby="visitor-code-help"
               autoComplete="off"
               autoCapitalize="characters"
               spellCheck={false}
               inputMode="text"
             />
           </Field>
-          <Button
-            type="submit"
-            className="mt-3 w-full"
-            size="lg"
-            disabled={verify.isPending || admit.isPending}
+          <p
+            id="visitor-code-help"
+            className="mt-2 text-center text-sm text-muted-foreground"
+            aria-live="polite"
           >
-            <Icon icon={ShieldCheck} size={24} />
-            {verify.isPending || admit.isPending ? "Checking…" : "Check code"}
-          </Button>
-        </form>
+            {verify.isPending
+              ? "Checking code…"
+              : "Verification starts automatically after all 6 characters are entered."}
+          </p>
+        </div>
         <Button asChild variant="secondary" size="lg" className="mt-3 w-full">
           <Link href="/security/scan">
             <Icon icon={ScanLine} size={24} />
@@ -178,6 +243,62 @@ export function GatePanel({
           </Link>
         </Button>
       </div>
+
+      {review ? (
+        <div className="space-y-4 rounded-xl border border-primary/25 bg-card p-5">
+          <div>
+            <Badge tone="good">Valid pass</Badge>
+            <h3 className="mt-2 text-xl font-semibold">{review.pass.visitorName}</h3>
+            <p className="text-sm text-muted-foreground">
+              Invited by {review.pass.inviterName} · {review.pass.houseNumber}
+              {review.pass.streetName ? ` ${review.pass.streetName}` : ""}
+            </p>
+          </div>
+          <dl className="grid gap-3 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-muted-foreground">Invited party size</dt>
+              <dd className="font-medium">{review.pass.partySize}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Expires</dt>
+              <dd className="font-medium">{formatDateTime(review.pass.expiresAt, timeZone)}</dd>
+            </div>
+            {review.pass.note ? (
+              <div className="sm:col-span-2">
+                <dt className="text-muted-foreground">Visit note</dt>
+                <dd className="font-medium">{review.pass.note}</dd>
+              </div>
+            ) : null}
+          </dl>
+          <Field label="Visitors present">
+            <Input
+              type="number"
+              min={1}
+              inputMode="numeric"
+              value={observedPartySize}
+              onChange={(event) => setObservedPartySize(event.target.value)}
+            />
+          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={clearResult}
+              disabled={admit.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void admitReviewedPass()}
+              disabled={admit.isPending}
+            >
+              <Icon icon={ShieldCheck} size={20} />
+              {admit.isPending ? "Admitting…" : "Admit visitor"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       {showSuccess ? (
         <div className="space-y-3">
@@ -196,7 +317,12 @@ export function GatePanel({
 
       {showFailure ? (
         <div className="space-y-3">
-          <StatusPlane tone="danger" title="Not valid" detail={message} icon={XCircle} />
+          <StatusPlane
+            tone={messageTone === "warning" ? "warning" : "danger"}
+            title={messageTone === "warning" ? "Not confirmed" : "Not valid"}
+            detail={message}
+            icon={XCircle}
+          />
           <Button
             type="button"
             variant="outline"
@@ -208,13 +334,13 @@ export function GatePanel({
           </Button>
         </div>
       ) : null}
-
     </section>
   );
 }
 
 export function RecentGateEvents({ zoneId, gateId }: { zoneId: string; gateId: string }) {
   const query = useFetchGateEvents(zoneId, gateId);
+  const timeZone = useEstateTimezone(zoneId);
 
   if (query.isLoading) {
     return (
@@ -225,6 +351,15 @@ export function RecentGateEvents({ zoneId, gateId }: { zoneId: string; gateId: s
     );
   }
 
+  if (query.isError) {
+    return (
+      <ErrorState
+        error={userMessageForError(query.error, "Recent gate events could not be loaded.")}
+        retry={() => void query.refetch()}
+      />
+    );
+  }
+
   return (
     <section className="rounded-xl border border-border bg-card p-5">
       <h2 className="font-semibold tracking-tight">Recent gate events</h2>
@@ -232,7 +367,7 @@ export function RecentGateEvents({ zoneId, gateId }: { zoneId: string; gateId: s
         <div className="mt-3">
           <EmptyState
             title="No recent events"
-            detail="Verified and admitted passes will appear here."
+            detail="Admissions and unsuccessful pass checks will appear here."
           />
         </div>
       ) : (
@@ -244,7 +379,7 @@ export function RecentGateEvents({ zoneId, gateId }: { zoneId: string; gateId: s
             >
               <div>
                 <p className="font-medium text-foreground">{event.summary}</p>
-                <p className="text-muted-foreground">{formatDateTime(event.createdAt)}</p>
+                <p className="text-muted-foreground">{formatDateTime(event.createdAt, timeZone)}</p>
               </div>
               <Badge tone={resultTone(event.result)}>{event.result}</Badge>
             </li>

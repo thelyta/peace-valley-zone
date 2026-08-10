@@ -10,8 +10,8 @@ import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
 import { AssignSecurityGatesDialog } from "@/modules/directory";
 import { householdsQueryOptions } from "@/modules/households/queries/use-fetch-households";
+import type { TZoneUserItem } from "@/types/admin-residents";
 import type { UserStatus, ZoneRole } from "@/types/enums";
-import type { TZoneUserItem } from "@/types/residents";
 import {
   Badge,
   Button,
@@ -27,10 +27,10 @@ import {
   useToast,
 } from "@/ui";
 import { normalizeNigerianPhone } from "@/utils/phone";
-import { useInviteZoneUser } from "../mutations/use-invite-zone-user";
-import { useResendActivationInvite } from "../mutations/use-resend-activation-invite";
-import { useRevokeZoneUserAccess } from "../mutations/use-revoke-zone-user-access";
-import { useFetchZoneUsers } from "../queries/use-fetch-zone-users";
+import { useInviteZoneUser } from "./mutations/use-invite-zone-user";
+import { useResendActivationInvite } from "./mutations/use-resend-activation-invite";
+import { useRevokeZoneUserAccess } from "./mutations/use-revoke-zone-user-access";
+import { useFetchZoneUsers } from "./queries/use-fetch-zone-users";
 
 function statusTone(status: UserStatus) {
   switch (status) {
@@ -285,7 +285,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
       <ConfirmDialog
         open={Boolean(resendUser)}
         title="Resend activation invitation?"
-        detail={`We’ll ensure an activation email is queued for ${resendUser?.email ?? "this user"}. A newly generated link replaces older activation links.`}
+        detail={`Send a new activation invite to ${resendUser?.email ?? "this user"}?`}
         confirmLabel="Send invitation"
         pending={resendInvite.isPending}
         onClose={() => setResendUser(null)}
@@ -293,7 +293,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
           if (!resendUser) return;
           resendInvite.mutate(resendUser.membershipId, {
             onSuccess: (result) => {
-              toast(`Activation invitation queued for ${result.email}.`);
+              toast(`Invite sent to ${result.email}.`);
               setResendUser(null);
             },
           });

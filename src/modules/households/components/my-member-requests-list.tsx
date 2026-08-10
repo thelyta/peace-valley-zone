@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useEstateTimezone } from "@/modules/zones";
 import type { THouseholdMemberRequest } from "@/types/member-requests";
 import { Badge, Button, ConfirmDialog, EmptyState, ErrorState, Skeleton, useToast } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
@@ -27,6 +28,7 @@ export function MyMemberRequestsList({
   zoneId: string;
   householdId: string;
 }) {
+  const timeZone = useEstateTimezone(zoneId);
   const toast = useToast();
   const query = useFetchMyMemberRequests(zoneId, householdId);
   const cancel = useCancelHouseholdMemberRequest(zoneId, householdId);
@@ -77,7 +79,7 @@ export function MyMemberRequestsList({
               ) : null}
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm text-muted-foreground">
-                  Submitted {formatDateTime(item.createdAt)}
+                  Submitted {formatDateTime(item.createdAt, timeZone)}
                 </p>
                 {item.status === "PENDING" ? (
                   <Button variant="secondary" onClick={() => setCancelTarget(item)}>

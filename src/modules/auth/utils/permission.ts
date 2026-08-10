@@ -7,7 +7,7 @@ export function getZoneRole(session: Session, zoneId: string): ZoneRole | null {
   return session.zones.find((membership) => membership.zoneId === zoneId)?.role ?? null;
 }
 
-export function hasPermission(session: Session, zoneId: string, permission: Permission | string) {
+export function hasPermission(session: Session, zoneId: string, permission: Permission) {
   return (
     session.zones
       .find((membership) => membership.zoneId === zoneId)
@@ -15,11 +15,7 @@ export function hasPermission(session: Session, zoneId: string, permission: Perm
   );
 }
 
-export function hasAnyPermission(
-  session: Session,
-  zoneId: string,
-  permissions: Array<Permission | string>,
-) {
+export function hasAnyPermission(session: Session, zoneId: string, permissions: Permission[]) {
   return permissions.some((permission) => hasPermission(session, zoneId, permission));
 }
 

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authControllerLogout } from "@/api/generated/auth/auth";
 import { useAppStore } from "@/lib/app.store";
-import { csrf } from "@/lib/csrf";
+import { resetIdentityState } from "@/modules/auth/utils/reset-identity-state";
 import { handleApiError } from "@/utils/error";
 
 export const useLogout = () => {
@@ -10,11 +10,12 @@ export const useLogout = () => {
 
   return useMutation({
     onError: handleApiError,
-    mutationFn: () => authControllerLogout(),
-    onSettled: () => {
-      csrf.set(null);
-      clearSelection();
-      queryClient.clear();
+    mutationFn: async () => {
+      try {
+        return await authControllerLogout();
+      } finally {
+        await resetIdentityState(queryClient, clearSelection);
+      }
     },
   });
 };

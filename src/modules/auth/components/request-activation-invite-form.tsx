@@ -54,7 +54,7 @@ export function RequestActivationInviteForm() {
   return (
     <PublicShell
       title="Request an activation email"
-      description="We’ll send a new activation link if your account is waiting to be activated."
+      description="Enter your email to request a new activation link."
     >
       {done ? (
         <div className="space-y-4">

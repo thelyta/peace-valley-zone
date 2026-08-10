@@ -6,9 +6,17 @@ import { Home } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import type { UpdateHouseholdDuesDtoStatus } from "@/api/generated/estatelyAPI.schemas";
+import { zoneUsersQueryOptions } from "@/modules/admin/residents/queries/use-fetch-zone-users";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
-import { zoneUsersQueryOptions } from "@/modules/residents/queries/use-fetch-zone-users";
+import { useAddHouseholdMember } from "@/modules/households/mutations/use-add-household-member";
+import { useCreateHousehold } from "@/modules/households/mutations/use-create-household";
+import { useUpdateHousehold } from "@/modules/households/mutations/use-update-household";
+import { useUpdateHouseholdDues } from "@/modules/households/mutations/use-update-household-dues";
+import { useUpdateHouseholdMember } from "@/modules/households/mutations/use-update-household-member";
+import { householdMembersQueryOptions } from "@/modules/households/queries/use-fetch-household-members";
+import { useFetchHouseholds } from "@/modules/households/queries/use-fetch-households";
 import type { HouseholdDuesStatus, VisitorAccessOverride } from "@/types/enums";
 import type { THouseholdItem } from "@/types/households";
 import {
@@ -25,12 +33,10 @@ import {
   Skeleton,
   useToast,
 } from "@/ui";
-import { useAddHouseholdMember } from "../mutations/use-add-household-member";
-import { useCreateHousehold } from "../mutations/use-create-household";
-import { useUpdateHousehold } from "../mutations/use-update-household";
-import { useUpdateHouseholdMember } from "../mutations/use-update-household-member";
-import { householdMembersQueryOptions } from "../queries/use-fetch-household-members";
-import { useFetchHouseholds } from "../queries/use-fetch-households";
+
+function duesLabel(status: HouseholdDuesStatus) {
+  return status.toLowerCase().replace(/^./, (letter) => letter.toUpperCase());
+}
 
 function duesTone(status: HouseholdDuesStatus) {
   switch (status) {
@@ -44,8 +50,43 @@ function duesTone(status: HouseholdDuesStatus) {
   }
 }
 
-function duesLabel(status: HouseholdDuesStatus) {
-  return status.toLowerCase().replace(/^./, (letter) => letter.toUpperCase());
+const duesStatusOptions = [
+  { value: "UNPAID", label: "Unpaid" },
+  { value: "PAID", label: "Paid" },
+  { value: "WAIVED", label: "Waived" },
+] as const;
+
+function DuesStatusControl({
+  zoneId,
+  householdId,
+  initialStatus,
+}: {
+  zoneId: string;
+  householdId: string;
+  initialStatus: UpdateHouseholdDuesDtoStatus;
+}) {
+  const [status, setStatus] = useState<UpdateHouseholdDuesDtoStatus>(initialStatus);
+  const update = useUpdateHouseholdDues(zoneId);
+  const toast = useToast();
+
+  return (
+    <div className="min-w-40">
+      <SelectControl
+        className="min-w-32"
+        value={status}
+        onValueChange={(value) => {
+          const nextStatus = value as UpdateHouseholdDuesDtoStatus;
+          setStatus(nextStatus);
+          update.mutate(
+            { householdId, status: nextStatus },
+            { onSuccess: () => toast("Dues status updated.") },
+          );
+        }}
+        options={[...duesStatusOptions]}
+        disabled={update.isPending}
+      />
+    </div>
+  );
 }
 
 function visitationPolicyLabel(value: VisitorAccessOverride | string) {
@@ -91,10 +132,10 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
   const filteredItems = items.filter((item) => {
     const matchesSearch =
       !normalizedSearch ||
-      [item.address, item.houseNumber ?? ""].some((value) => value.toLowerCase().includes(normalizedSearch));
-    const matchesDues =
-      duesFilter === "ALL" ||
-      item.duesStatus === duesFilter;
+      [item.address, item.houseNumber ?? ""].some((value) =>
+        value.toLowerCase().includes(normalizedSearch),
+      );
+    const matchesDues = duesFilter === "ALL" || item.duesStatus === duesFilter;
     return matchesSearch && matchesDues;
   });
   const pageSize = 25;
@@ -128,7 +169,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
               setSearch(event.target.value);
               setPage(1);
             }}
-              placeholder="Address or house number"
+            placeholder="Address or house number"
           />
         </Field>
         <Field label="Dues status">
@@ -165,7 +206,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Primary resident: {household.primaryResident?.fullName ?? "—"}
                 </p>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge tone={duesTone(household.duesStatus)}>
                     {duesLabel(household.duesStatus)}
                   </Badge>
@@ -176,6 +217,17 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                 </p>
                 {canManage && (
                   <div className="mt-3 flex flex-wrap gap-2">
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">
+                        Dues settings
+                      </p>
+                      <DuesStatusControl
+                        key={`${household.id}-${household.duesStatus}`}
+                        zoneId={zoneId}
+                        householdId={household.id}
+                        initialStatus={household.duesStatus}
+                      />
+                    </div>
                     <Button variant="secondary" onClick={() => setSelected(household)}>
                       Members
                     </Button>
@@ -189,7 +241,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                         })
                       }
                       options={[
-                        { value: "INHERIT", label: "Follow zone policy" },
+                        { value: "DEFAULT", label: "Follow zone policy" },
                         { value: "ALLOW", label: "Allow visitation" },
                         { value: "BLOCK", label: "Block visitation" },
                       ]}
@@ -208,6 +260,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                   <th className="px-4 py-3 font-semibold">Primary resident</th>
                   <th className="px-4 py-3 font-semibold">Members</th>
                   <th className="px-4 py-3 font-semibold">Dues status</th>
+                  <th className="px-4 py-3 font-semibold">Dues settings</th>
                   <th className="px-4 py-3 font-semibold">Visitation policy</th>
                   <th className="px-4 py-3 font-semibold">Actions</th>
                 </tr>
@@ -230,6 +283,18 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                     </td>
                     <td className="px-4 py-3">
                       {canManage ? (
+                        <DuesStatusControl
+                          key={`${household.id}-${household.duesStatus}`}
+                          zoneId={zoneId}
+                          householdId={household.id}
+                          initialStatus={household.duesStatus}
+                        />
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {canManage ? (
                         <SelectControl
                           className="max-w-[14rem]"
                           value={household.visitorAccessOverride}
@@ -240,7 +305,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                             })
                           }
                           options={[
-                            { value: "INHERIT", label: "Follow zone policy" },
+                            { value: "DEFAULT", label: "Follow zone policy" },
                             { value: "ALLOW", label: "Allow visitation" },
                             { value: "BLOCK", label: "Block visitation" },
                           ]}

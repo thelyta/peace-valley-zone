@@ -2,6 +2,7 @@
 
 import { Ticket } from "lucide-react";
 import { useState } from "react";
+import { useEstateTimezone } from "@/modules/zones";
 import type { TVisitorPass } from "@/types/visitor-passes";
 import { Badge, ConfirmDialog, EmptyState, ErrorState, Icon, Skeleton, useToast } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
@@ -42,6 +43,7 @@ export function VisitorHistory({
   const query = useFetchVisitorPasses(zoneId, householdId);
   const cancel = useCancelVisitorPass(zoneId, householdId);
   const reveal = useRevealVisitorPass(zoneId, householdId);
+  const timeZone = useEstateTimezone(zoneId);
 
   function confirmCancel(passId: string) {
     cancel.mutate(passId, {
@@ -112,11 +114,17 @@ export function VisitorHistory({
             onOpen={() => void openShare(pass)}
             onCancel={() => setCancelId(pass.id)}
             cancelPending={cancel.isPending && cancelId === pass.id}
+            timeZone={timeZone}
           />
         ))}
       </section>
       {sharePass ? (
-        <GateTicketSheet pass={sharePass} open onClose={() => setSharePass(null)} />
+        <GateTicketSheet
+          pass={sharePass}
+          open
+          timeZone={timeZone}
+          onClose={() => setSharePass(null)}
+        />
       ) : null}
       <ConfirmDialog
         open={Boolean(cancelId)}
@@ -149,12 +157,14 @@ function VisitorPassCard({
   onOpen,
   onCancel,
   cancelPending,
+  timeZone,
 }: {
   pass: TVisitorPass;
   opening: boolean;
   onOpen: () => void;
   onCancel: () => void;
   cancelPending: boolean;
+  timeZone?: string;
 }) {
   const street = pass.destinationStreet?.name
     ? toTitleCase(pass.destinationStreet.name)
@@ -187,7 +197,9 @@ function VisitorPassCard({
               {[street, gate].filter(Boolean).join(" · ")}
             </p>
           ) : null}
-          <p className="text-sm text-muted-foreground">Expires {formatDateTime(pass.expiresAt)}</p>
+          <p className="text-sm text-muted-foreground">
+            Expires {formatDateTime(pass.expiresAt, timeZone)}
+          </p>
         </button>
         <div className="text-right">
           <Badge tone={statusTone(pass.status)}>{pass.status}</Badge>

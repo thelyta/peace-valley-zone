@@ -14,9 +14,7 @@ export {
   useFetchHouseholdMembers,
 } from "../queries/use-fetch-household-members";
 export { householdsQueryOptions, useFetchHouseholds } from "../queries/use-fetch-households";
-export { HouseholdsDirectory } from "./directory";
 export { HouseholdMembersPanel } from "./household-members-panel";
-export { MemberRequestsList } from "./member-requests-list";
 export { MyMemberRequestsList } from "./my-member-requests-list";
 export { RequestHouseholdMemberForm } from "./request-member-form";
 

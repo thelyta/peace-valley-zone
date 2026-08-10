@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEstateTimezone } from "@/modules/zones";
 import type { TAnnouncement } from "@/types/announcements";
 import { Badge, EmptyState, ErrorState, Skeleton } from "@/ui";
 import { formatDateTime } from "@/utils/dates";
@@ -10,6 +11,7 @@ import { AnnouncementDetailDialog, useAnnouncementDetail } from "./announcement-
 export function AnnouncementPreview({ zoneId, limit = 3 }: { zoneId: string; limit?: number }) {
   const query = useFetchAnnouncements(zoneId);
   const detail = useAnnouncementDetail();
+  const timeZone = useEstateTimezone(zoneId);
 
   if (query.isPending) {
     return <Skeleton className="h-40 w-full" />;
@@ -52,8 +54,8 @@ export function AnnouncementPreview({ zoneId, limit = 3 }: { zoneId: string; lim
                 <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{item.body}</p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {item.publishedAt
-                    ? formatDateTime(item.publishedAt)
-                    : formatDateTime(item.createdAt)}
+                    ? formatDateTime(item.publishedAt, timeZone)
+                    : formatDateTime(item.createdAt, timeZone)}
                 </p>
               </button>
             </li>

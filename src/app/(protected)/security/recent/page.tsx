@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useAppStore } from "@/lib/app.store";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { RecentGateEvents, useFetchMyGates } from "@/modules/gate";
-import { EmptyState, Skeleton } from "@/ui";
+import { EmptyState, ErrorState, Skeleton } from "@/ui";
+import { userMessageForError } from "@/utils/error-messages";
 
 export default function SecurityRecentPage() {
   const { data, isLoading } = useFetchSession();
@@ -21,6 +22,15 @@ export default function SecurityRecentPage() {
 
   if (isLoading || gatesQuery.isLoading) {
     return <Skeleton className="h-64 w-full" />;
+  }
+
+  if (gatesQuery.isError) {
+    return (
+      <ErrorState
+        error={userMessageForError(gatesQuery.error, "Gate assignments could not be loaded.")}
+        retry={() => void gatesQuery.refetch()}
+      />
+    );
   }
 
   if (!zoneId || !gateId) {

@@ -226,8 +226,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
             <Button
               variant="outline"
               className="w-full"
+              disabled={logout.isPending}
               onClick={() =>
-                logout.mutate(undefined, { onSettled: () => router.replace("/login") })
+                logout.mutate(undefined, { onSuccess: () => router.replace("/login") })
               }
             >
               <Icon icon={LogOut} size={20} />
@@ -273,8 +274,9 @@ export function AppShell({ session, children }: { session: Session; children: Re
                   variant="outline"
                   size="icon"
                   aria-label="Sign out"
+                  disabled={logout.isPending}
                   onClick={() =>
-                    logout.mutate(undefined, { onSettled: () => router.replace("/login") })
+                    logout.mutate(undefined, { onSuccess: () => router.replace("/login") })
                   }
                 >
                   <Icon icon={LogOut} size={20} />
