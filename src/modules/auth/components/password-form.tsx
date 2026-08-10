@@ -16,7 +16,7 @@ import { PublicShell } from "./public-shell";
 
 const passwordSchema = z
   .object({
-    password: z.string().min(15, "Use at least 15 characters."),
+    password: z.string().min(8, "Use at least 8 characters."),
     confirmPassword: z.string(),
   })
   .refine((value) => value.password === value.confirmPassword, {
@@ -81,7 +81,7 @@ export function PasswordForm({ mode }: { mode: "activate" | "reset" }) {
   const description =
     mode === "activate"
       ? "Set a password to finish joining Peace Valley Zone."
-      : "Use a long password or memorable phrase — at least 15 characters.";
+      : "Use a password of at least 8 characters.";
 
   if (success) {
     return (

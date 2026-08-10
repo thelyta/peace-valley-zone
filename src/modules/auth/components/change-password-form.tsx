@@ -10,7 +10,7 @@ import { PasswordInput } from "./password-input";
 const schema = z
   .object({
     currentPassword: z.string().min(1, "Enter your current password."),
-    password: z.string().min(15, "Use at least 15 characters."),
+    password: z.string().min(8, "Use at least 8 characters."),
     confirmPassword: z.string(),
   })
   .refine((value) => value.password === value.confirmPassword, {
