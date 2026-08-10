@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import { http } from "./http";
 
 /**
- * Orval mutator (axios-functions). Preserves Magodo CSRF + cookie credentials
+ * Orval mutator (axios-functions). Preserves Estately CSRF + cookie credentials
  * via the shared `http` instance. Returns the JSON body as-is (no envelope unwrap).
  */
 export const customInstance = <T>(config: AxiosRequestConfig): Promise<T> => {
