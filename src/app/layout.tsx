@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   description:
     "Visitation management, resident registry, and announcements for Peace Valley Zone, Magodo Phase 2",
   manifest: "/manifest.json",
+  icons: {
+    icon: [{ url: "/icon-192x192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

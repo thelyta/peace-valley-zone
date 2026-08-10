@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 export function PublicShell({
@@ -29,9 +30,19 @@ export function PublicShell({
       <div className="relative flex flex-1 flex-col justify-center">
         <section className="mx-auto w-full max-w-md">
           <header className="mb-6 text-center sm:mb-8">
-            <p className="text-sm font-semibold tracking-[0.16em] text-primary-foreground/70 uppercase">
-              Prime Estately
-            </p>
+            <div className="inline-flex items-center gap-2.5">
+              <Image
+                src="/brand/prime-estately-mark-on-dark.png"
+                alt="Prime Estately"
+                width={36}
+                height={42}
+                className="h-7 w-auto"
+                priority
+              />
+              <p className="text-base font-semibold tracking-[0.16em] text-primary-foreground/70 uppercase">
+                Prime Estately
+              </p>
+            </div>
             <p className="mt-2 font-serif text-[2rem] leading-tight font-semibold tracking-tight text-primary-foreground sm:text-4xl">
               Peace Valley Zone
             </p>
@@ -52,7 +63,14 @@ export function PublicShell({
         </section>
       </div>
 
-      <p className="relative mt-8 text-center text-sm text-muted-foreground">
+      <p className="relative mt-8 flex items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+        <Image
+          src="/brand/prime-estately-mark.png"
+          alt=""
+          width={16}
+          height={19}
+          className="h-4 w-auto opacity-70"
+        />
         Powered by Prime Estately
       </p>
     </main>
