@@ -3,13 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { Home } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { UpdateHouseholdDuesDtoStatus } from "@/api/generated/estatelyAPI.schemas";
 import { zoneUsersQueryOptions } from "@/modules/admin/residents/queries/use-fetch-zone-users";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
+import { useFetchGates } from "@/modules/directory/queries/use-fetch-gates";
 import { useAddHouseholdMember } from "@/modules/households/mutations/use-add-household-member";
 import { useCreateHousehold } from "@/modules/households/mutations/use-create-household";
 import { useUpdateHousehold } from "@/modules/households/mutations/use-update-household";
@@ -206,6 +207,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Primary resident: {household.primaryResident?.fullName ?? "—"}
                 </p>
+                <p className="mt-1 text-sm text-muted-foreground">Gate: {household.gate.name}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge tone={duesTone(household.duesStatus)}>
                     {duesLabel(household.duesStatus)}
@@ -258,6 +260,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                 <tr>
                   <th className="px-4 py-3 font-semibold">Address</th>
                   <th className="px-4 py-3 font-semibold">Primary resident</th>
+                  <th className="px-4 py-3 font-semibold">Gate</th>
                   <th className="px-4 py-3 font-semibold">Members</th>
                   <th className="px-4 py-3 font-semibold">Dues status</th>
                   <th className="px-4 py-3 font-semibold">Dues settings</th>
@@ -275,6 +278,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                       )}
                     </td>
                     <td className="px-4 py-3">{household.primaryResident?.fullName ?? "—"}</td>
+                    <td className="px-4 py-3">{household.gate.name}</td>
                     <td className="px-4 py-3">{household._count.memberships}</td>
                     <td className="px-4 py-3">
                       <Badge tone={duesTone(household.duesStatus)}>
@@ -400,6 +404,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
 
 const createSchema = z.object({
   address: z.string().trim().min(1, "Enter the full address."),
+  gateId: z.string().min(1, "Select the gate for this address."),
   houseNumber: z.string().optional(),
   fullName: z.string().trim().min(1, "Enter the resident's full name."),
   email: z.string().email("Enter a valid email."),
@@ -424,6 +429,7 @@ function CreateHouseholdDialog({
     resolver: zodResolver(createSchema),
     defaultValues: {
       address: "",
+      gateId: "",
       houseNumber: "",
       fullName: "",
       email: "",
@@ -434,6 +440,17 @@ function CreateHouseholdDialog({
   });
 
   const create = useCreateHousehold(zoneId);
+  const gatesQuery = useFetchGates(zoneId);
+  const gateOptions = (gatesQuery.data?.items ?? [])
+    .filter((gate) => gate.status === "ACTIVE")
+    .map((gate) => ({ value: gate.id, label: gate.name }));
+  const soleGateId = gateOptions.length === 1 ? gateOptions[0]?.value : undefined;
+
+  useEffect(() => {
+    if (open && soleGateId && !form.getValues("gateId")) {
+      form.setValue("gateId", soleGateId, { shouldValidate: true });
+    }
+  }, [form, open, soleGateId]);
 
   return (
     <Dialog open={open} title="Create household" onClose={onClose}>
@@ -443,6 +460,7 @@ function CreateHouseholdDialog({
           create.mutate(
             {
               address: values.address.trim(),
+              gateId: values.gateId,
               houseNumber: values.houseNumber?.trim() || undefined,
               fullName: values.fullName.trim(),
               email: values.email.trim().toLowerCase(),
@@ -462,6 +480,14 @@ function CreateHouseholdDialog({
       >
         <Field label="Full address" error={form.formState.errors.address?.message}>
           <Input {...form.register("address")} autoComplete="street-address" />
+        </Field>
+        <Field label="Gate for this address" error={form.formState.errors.gateId?.message}>
+          <SelectControl
+            value={form.watch("gateId")}
+            onValueChange={(value) => form.setValue("gateId", value, { shouldValidate: true })}
+            options={gateOptions}
+            placeholder={gatesQuery.isLoading ? "Loading gates…" : "Select gate"}
+          />
         </Field>
         <Field label="House Number (optional)">
           <Input {...form.register("houseNumber")} autoComplete="off" />
