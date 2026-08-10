@@ -1,9 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import { authControllerRequestActivationInvite } from "@/api/generated/auth/auth";
-import type { RequestActivationInviteDto } from "@/api/generated/estatelyAPI.schemas";
+import { customInstance } from "@/lib/mutator";
+
+type RequestActivationInviteDto = { email: string };
+type RequestActivationInviteResponse = { message: string };
 
 export function useRequestActivationInvite() {
   return useMutation({
-    mutationFn: (body: RequestActivationInviteDto) => authControllerRequestActivationInvite(body),
+    mutationFn: (body: RequestActivationInviteDto) =>
+      customInstance<RequestActivationInviteResponse>({
+        url: "/v1/auth/account/invitation/resend",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: body,
+      }),
   });
 }
