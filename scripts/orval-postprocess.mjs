@@ -15,10 +15,9 @@ const normalizeSchemaModule = () => {
     .sort((a, b) => b.mtime - a.mtime);
   const source = schemaFiles[0];
   if (!source) return;
-  for (const alias of ["estatelyAPI.schemas.ts", "magodoEstateAPI.schemas.ts"]) {
-    if (alias !== source.name) {
-      fs.copyFileSync(path.join(ROOT, source.name), path.join(ROOT, alias));
-    }
+  const alias = "estatelyAPI.schemas.ts";
+  if (alias !== source.name) {
+    fs.copyFileSync(path.join(ROOT, source.name), path.join(ROOT, alias));
   }
 };
 

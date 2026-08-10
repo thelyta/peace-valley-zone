@@ -28,7 +28,7 @@ if (!backendUrl && !process.env.ORVAL_OPENAPI_URL) {
  * Offline escape hatch: `ORVAL_OPENAPI_URL=../backend/openapi.json pnpm api:generate`
  */
 export default defineConfig({
-  magodo: {
+  estately: {
     hooks: {
       afterAllFilesWrite: "node scripts/orval-postprocess.mjs",
     },
