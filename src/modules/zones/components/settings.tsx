@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { featureFlags } from "@/lib/feature-flags";
+import { ChangePasswordForm, SessionsList } from "@/modules/auth";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
 import { GatesManager, StreetsManager } from "@/modules/directory";
@@ -18,7 +19,7 @@ type SettingsForm = {
   announcementSecurityVisibility: "true" | "false";
 };
 
-type SettingsTab = "general" | "streets" | "gates";
+type SettingsTab = "personal" | "general" | "streets" | "gates";
 
 export function ZoneSettingsPage({ zoneId }: { zoneId: string }) {
   const sessionQuery = useFetchSession();
@@ -33,30 +34,20 @@ export function ZoneSettingsPage({ zoneId }: { zoneId: string }) {
   const canStreets = featureFlags.adminStreetAndGateSettings && canManageStreets;
   const canGates = featureFlags.adminStreetAndGateSettings && canManageGates;
   const visibleTabs: Array<{ id: SettingsTab; label: string }> = [
+    { id: "personal", label: "Personal" },
     ...(canGeneral ? [{ id: "general" as const, label: "General" }] : []),
     ...(canStreets ? [{ id: "streets" as const, label: "Streets" }] : []),
     ...(canGates ? [{ id: "gates" as const, label: "Gates" }] : []),
   ];
-  const [tab, setTab] = useState<SettingsTab>(visibleTabs[0]?.id ?? "general");
-  const activeTab = visibleTabs.some((item) => item.id === tab)
-    ? tab
-    : (visibleTabs[0]?.id ?? "general");
-
-  if (!visibleTabs.length) {
-    return (
-      <EmptyState
-        title="Settings unavailable"
-        detail="You do not have permission to manage zone settings."
-      />
-    );
-  }
+  const [tab, setTab] = useState<SettingsTab>("personal");
+  const activeTab = visibleTabs.some((item) => item.id === tab) ? tab : "personal";
 
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Zone settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Admin settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Configure visitor rules and directory setup for this zone.
+          Manage your account and configure this zone.
         </p>
       </div>
 
@@ -76,6 +67,18 @@ export function ZoneSettingsPage({ zoneId }: { zoneId: string }) {
         </div>
       )}
 
+      {activeTab === "personal" && (
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-lg font-semibold">Your signed-in devices</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Review the devices currently signed in to your account.
+            </p>
+          </div>
+          <SessionsList />
+          <ChangePasswordForm />
+        </div>
+      )}
       {activeTab === "general" && canGeneral && <ZoneSettingsForm zoneId={zoneId} />}
       {activeTab === "streets" && canStreets && <StreetsManager zoneId={zoneId} />}
       {activeTab === "gates" && canGates && <GatesManager zoneId={zoneId} />}

@@ -61,32 +61,35 @@ function DuesStatusControl({
   zoneId,
   householdId,
   initialStatus,
+  id,
+  className = "min-w-32",
 }: {
   zoneId: string;
   householdId: string;
   initialStatus: UpdateHouseholdDuesDtoStatus;
+  id?: string;
+  className?: string;
 }) {
   const [status, setStatus] = useState<UpdateHouseholdDuesDtoStatus>(initialStatus);
   const update = useUpdateHouseholdDues(zoneId);
   const toast = useToast();
 
   return (
-    <div className="min-w-40">
-      <SelectControl
-        className="min-w-32"
-        value={status}
-        onValueChange={(value) => {
-          const nextStatus = value as UpdateHouseholdDuesDtoStatus;
-          setStatus(nextStatus);
-          update.mutate(
-            { householdId, status: nextStatus },
-            { onSuccess: () => toast("Dues status updated.") },
-          );
-        }}
-        options={[...duesStatusOptions]}
-        disabled={update.isPending}
-      />
-    </div>
+    <SelectControl
+      id={id}
+      className={className}
+      value={status}
+      onValueChange={(value) => {
+        const nextStatus = value as UpdateHouseholdDuesDtoStatus;
+        setStatus(nextStatus);
+        update.mutate(
+          { householdId, status: nextStatus },
+          { onSuccess: () => toast("Dues status updated.") },
+        );
+      }}
+      options={[...duesStatusOptions]}
+      disabled={update.isPending}
+    />
   );
 }
 
@@ -200,56 +203,72 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
           <ul className="space-y-3 md:hidden">
             {visibleItems.map((household) => (
               <li key={household.id} className="rounded-xl border border-border bg-card p-4">
-                <p className="font-medium">{household.address}</p>
-                {household.houseNumber && (
-                  <p className="text-sm text-muted-foreground">{household.houseNumber}</p>
-                )}
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Primary resident: {household.primaryResident?.fullName ?? "—"}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">Gate: {household.gate.name}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium leading-snug">{household.address}</p>
+                    {household.houseNumber ? (
+                      <p className="mt-0.5 text-sm text-muted-foreground">{household.houseNumber}</p>
+                    ) : null}
+                  </div>
                   <Badge tone={duesTone(household.duesStatus)}>
                     {duesLabel(household.duesStatus)}
                   </Badge>
-                  <Badge>{visitationPolicyLabel(household.visitorAccessOverride)}</Badge>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {household._count.memberships} members
-                </p>
-                {canManage && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <div>
-                      <p className="mb-1 text-xs font-medium text-muted-foreground">
-                        Dues settings
-                      </p>
+
+                <dl className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm">
+                  <dt className="text-muted-foreground">Primary</dt>
+                  <dd className="min-w-0 truncate font-medium">
+                    {household.primaryResident?.fullName ?? "—"}
+                  </dd>
+                  <dt className="text-muted-foreground">Gate</dt>
+                  <dd className="min-w-0 truncate font-medium">{household.gate.name}</dd>
+                  <dt className="text-muted-foreground">Members</dt>
+                  <dd className="font-medium">{household._count.memberships}</dd>
+                  {!canManage ? (
+                    <>
+                      <dt className="text-muted-foreground">Visitation</dt>
+                      <dd className="min-w-0 font-medium">
+                        {visitationPolicyLabel(household.visitorAccessOverride)}
+                      </dd>
+                    </>
+                  ) : null}
+                </dl>
+
+                {canManage ? (
+                  <div className="mt-4 space-y-3 border-t border-border pt-3">
+                    <Field label="Dues settings">
                       <DuesStatusControl
                         key={`${household.id}-${household.duesStatus}`}
                         zoneId={zoneId}
                         householdId={household.id}
                         initialStatus={household.duesStatus}
                       />
-                    </div>
-                    <Button variant="secondary" onClick={() => setSelected(household)}>
-                      Members
+                    </Field>
+                    <Field label="Visitation policy">
+                      <SelectControl
+                        value={household.visitorAccessOverride}
+                        onValueChange={(value) =>
+                          setOverrideTarget({
+                            household,
+                            value: value as VisitorAccessOverride,
+                          })
+                        }
+                        options={[
+                          { value: "DEFAULT", label: "Follow zone policy" },
+                          { value: "ALLOW", label: "Allow visitation" },
+                          { value: "BLOCK", label: "Block visitation" },
+                        ]}
+                      />
+                    </Field>
+                    <Button
+                      className="w-full"
+                      variant="info"
+                      onClick={() => setSelected(household)}
+                    >
+                      View Members
                     </Button>
-                    <SelectControl
-                      className="max-w-[14rem]"
-                      value={household.visitorAccessOverride}
-                      onValueChange={(value) =>
-                        setOverrideTarget({
-                          household,
-                          value: value as VisitorAccessOverride,
-                        })
-                      }
-                      options={[
-                        { value: "DEFAULT", label: "Follow zone policy" },
-                        { value: "ALLOW", label: "Allow visitation" },
-                        { value: "BLOCK", label: "Block visitation" },
-                      ]}
-                    />
                   </div>
-                )}
+                ) : null}
               </li>
             ))}
           </ul>
@@ -292,6 +311,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                           zoneId={zoneId}
                           householdId={household.id}
                           initialStatus={household.duesStatus}
+                          className="h-9 min-w-32 text-sm"
                         />
                       ) : (
                         "—"
@@ -300,7 +320,7 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                     <td className="px-4 py-3">
                       {canManage ? (
                         <SelectControl
-                          className="max-w-[14rem]"
+                          className="h-9 max-w-56 text-sm"
                           value={household.visitorAccessOverride}
                           onValueChange={(value) =>
                             setOverrideTarget({
@@ -320,8 +340,8 @@ export function HouseholdsDirectory({ zoneId }: { zoneId: string }) {
                     </td>
                     <td className="px-4 py-3">
                       {canManage && (
-                        <Button variant="secondary" onClick={() => setSelected(household)}>
-                          Members
+                        <Button variant="info" onClick={() => setSelected(household)}>
+                          View Members
                         </Button>
                       )}
                     </td>

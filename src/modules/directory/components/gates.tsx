@@ -146,10 +146,10 @@ export function GatesManager({ zoneId }: { zoneId: string }) {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-2">
-                        <Button variant="secondary" onClick={() => setStreetsGate(gate)}>
+                        <Button variant="info" onClick={() => setStreetsGate(gate)}>
                           Map streets
                         </Button>
-                        <Button variant="secondary" onClick={() => setStatusGate(gate)}>
+                        <Button variant="info" onClick={() => setStatusGate(gate)}>
                           {gate.status === "ACTIVE" ? "Deactivate" : "Activate"}
                         </Button>
                       </div>
@@ -221,10 +221,10 @@ function GateCard({
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button variant="secondary" onClick={onMapStreets}>
+        <Button variant="info" onClick={onMapStreets}>
           Map streets
         </Button>
-        <Button variant="secondary" onClick={onToggleStatus}>
+        <Button variant="info" onClick={onToggleStatus}>
           {gate.status === "ACTIVE" ? "Deactivate" : "Activate"}
         </Button>
       </div>

@@ -145,7 +145,7 @@ export function MemberRequestsList({ zoneId }: { zoneId: string }) {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Submitted {formatDateTime(item.createdAt, timeZone)}
                 </p>
-                <Button className="mt-4" variant="secondary" onClick={() => setSelected(item)}>
+                <Button className="mt-4" variant="info" onClick={() => setSelected(item)}>
                   View details
                 </Button>
               </li>
@@ -180,7 +180,7 @@ export function MemberRequestsList({ zoneId }: { zoneId: string }) {
                     </td>
                     <td className="px-4 py-3">{formatDateTime(item.createdAt, timeZone)}</td>
                     <td className="px-4 py-3">
-                      <Button variant="secondary" onClick={() => setSelected(item)}>
+                      <Button variant="info" onClick={() => setSelected(item)}>
                         View details
                       </Button>
                     </td>

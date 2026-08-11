@@ -50,12 +50,7 @@ export function routeAllowed(session: Session, zoneId: string | null, pathname: 
       return hasPermission(session, zoneId, Permission.REPORTS_VISITORS_READ);
     }
     if (pathname.startsWith("/admin/settings")) {
-      return (
-        hasPermission(session, zoneId, Permission.ZONE_SETTINGS_WRITE) ||
-        hasPermission(session, zoneId, Permission.STREETS_MANAGE) ||
-        hasPermission(session, zoneId, Permission.GATES_MANAGE) ||
-        hasPermission(session, zoneId, Permission.SECURITY_ASSIGN)
-      );
+      return true;
     }
     return true;
   }

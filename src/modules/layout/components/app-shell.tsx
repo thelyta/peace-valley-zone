@@ -18,7 +18,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/app.store";
 import { cn } from "@/lib/utils";
 import { useLogout } from "@/modules/auth/mutations/use-logout";
-import { adminNavItems, primaryNavItems, residentNavItems } from "@/modules/auth/utils/navigation";
+import {
+  adminNavItems,
+  primaryNavItems,
+  residentNavItems,
+  securityNavItems,
+} from "@/modules/auth/utils/navigation";
 import { getDefaultRouteForZone } from "@/modules/auth/utils/permission";
 import type { Session } from "@/types/session";
 import {
@@ -43,6 +48,7 @@ const sectionIcons: Record<string, LucideIcon> = {
   "/resident/announcements": Megaphone,
   "/resident/household": Users,
   "/resident/sessions": Settings,
+  "/security/settings": Settings,
   "/admin": Building2,
   "/admin/residents": Users,
   "/admin/households": Home,
@@ -137,14 +143,17 @@ export function AppShell({ session, children }: { session: Session; children: Re
       ? adminNavItems(session, zoneId)
       : pathname.startsWith("/resident")
         ? residentNavItems(session, zoneId)
-        : []
+        : pathname.startsWith("/security")
+          ? securityNavItems(session, zoneId)
+          : []
     : [];
-  const isSecurity = pathname.startsWith("/security");
   const sectionLabel = pathname.startsWith("/admin")
     ? "Manage"
     : pathname.startsWith("/resident")
       ? "Home"
-      : null;
+      : pathname.startsWith("/security")
+        ? "Gate"
+        : null;
 
   function switchZone(nextZoneId: string) {
     setZone(nextZoneId);
@@ -192,7 +201,10 @@ export function AppShell({ session, children }: { session: Session; children: Re
           </div>
           <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Primary">
             {primary
-              .filter((link) => link.href !== "/admin" && link.href !== "/resident")
+              .filter(
+                (link) =>
+                  link.href !== "/admin" && link.href !== "/resident" && link.href !== "/security",
+              )
               .map((link) => (
                 <NavLink
                   key={`${link.href}-${link.label}`}
@@ -283,7 +295,7 @@ export function AppShell({ session, children }: { session: Session; children: Re
                 </Button>
               </div>
             </div>
-            {secondary.length > 0 && !isSecurity ? (
+            {secondary.length > 0 ? (
               <nav
                 className="flex gap-1 overflow-x-auto border-t border-border px-2 py-1"
                 aria-label={sectionLabel ?? "Secondary"}

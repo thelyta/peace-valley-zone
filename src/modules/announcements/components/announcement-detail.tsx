@@ -69,7 +69,7 @@ export function AnnouncementCard({
             ) : null}
             {item.status !== "ARCHIVED" ? (
               <Button
-                variant="secondary"
+                variant="warning"
                 disabled={archive.isPending}
                 onClick={() => setArchiveOpen(true)}
               >

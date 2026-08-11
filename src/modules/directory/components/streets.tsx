@@ -93,7 +93,7 @@ export function StreetsManager({ zoneId }: { zoneId: string }) {
                     </Badge>
                   </div>
                   <Button
-                    variant="secondary"
+                    variant="info"
                     onClick={() => setPendingStreet(street)}
                     disabled={toggle.isPending}
                   >
@@ -123,7 +123,7 @@ export function StreetsManager({ zoneId }: { zoneId: string }) {
                     </td>
                     <td className="px-4 py-3">
                       <Button
-                        variant="secondary"
+                        variant="info"
                         onClick={() => setPendingStreet(street)}
                         disabled={toggle.isPending}
                       >

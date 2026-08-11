@@ -133,7 +133,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                   Gates: {user.gates.length ? user.gates.join(", ") : "—"}
                 </p>
                 {canAssign && user.role === "SECURITY" && (
-                  <Button className="mt-3" variant="secondary" onClick={() => setAssignUser(user)}>
+                  <Button className="mt-3" variant="info" onClick={() => setAssignUser(user)}>
                     Assign gates
                   </Button>
                 )}
@@ -142,6 +142,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                     {user.status === "INVITED" ? (
                       <Button
                         variant="secondary"
+                        className="bg-[#d1fae5] text-success-soft-foreground hover:bg-[#a7f3d0]"
                         disabled={
                           resendInvite.isPending && resendInvite.variables === user.membershipId
                         }
@@ -190,7 +191,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-2">
                         {canAssign && user.role === "SECURITY" ? (
-                          <Button variant="secondary" onClick={() => setAssignUser(user)}>
+                          <Button variant="info" onClick={() => setAssignUser(user)}>
                             Assign gates
                           </Button>
                         ) : null}
@@ -199,6 +200,7 @@ export function ResidentsDirectory({ zoneId }: { zoneId: string }) {
                             {user.status === "INVITED" ? (
                               <Button
                                 variant="secondary"
+                                className="bg-[#d1fae5] text-success-soft-foreground hover:bg-[#a7f3d0]"
                                 disabled={
                                   resendInvite.isPending &&
                                   resendInvite.variables === user.membershipId

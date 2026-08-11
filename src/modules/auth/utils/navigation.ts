@@ -80,11 +80,7 @@ export function adminNavItems(session: Session, zoneId: string): NavItem[] {
     {
       href: "/admin/settings",
       label: "Settings",
-      visible:
-        hasPermission(session, zoneId, Permission.ZONE_SETTINGS_WRITE) ||
-        hasPermission(session, zoneId, Permission.STREETS_MANAGE) ||
-        hasPermission(session, zoneId, Permission.GATES_MANAGE) ||
-        hasPermission(session, zoneId, Permission.SECURITY_ASSIGN),
+      visible: true,
     },
   ].filter((item) => item.visible);
 }
@@ -104,5 +100,16 @@ export function residentNavItems(session: Session, zoneId: string): NavItem[] {
     { href: "/resident/announcements", label: "Announcements", visible: true },
     { href: "/resident/household", label: "My home", visible: true },
     { href: "/resident/sessions", label: "Settings", visible: true },
+  ];
+}
+
+export function securityNavItems(session: Session, zoneId: string): NavItem[] {
+  if (!canAccessSecurityArea(session, zoneId)) {
+    return [];
+  }
+
+  return [
+    { href: "/security", label: "Gate", visible: true },
+    { href: "/security/settings", label: "Settings", visible: true },
   ];
 }

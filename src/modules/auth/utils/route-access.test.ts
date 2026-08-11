@@ -35,6 +35,7 @@ describe("routeAllowed", () => {
     expect(routeAllowed(session("RESIDENT", []), "zone-1", "/resident/visitors")).toBe(true);
     expect(routeAllowed(session("RESIDENT", []), "zone-1", "/admin/residents")).toBe(false);
     expect(routeAllowed(session("SECURITY", []), "zone-1", "/security")).toBe(true);
+    expect(routeAllowed(session("SECURITY", []), "zone-1", "/security/settings")).toBe(true);
     expect(routeAllowed(session("SECURITY", []), "zone-1", "/resident")).toBe(false);
   });
 
@@ -42,6 +43,7 @@ describe("routeAllowed", () => {
     const householdsAdmin = session("ZONE_ADMIN", [Permission.HOUSEHOLDS_MANAGE]);
     expect(routeAllowed(householdsAdmin, "zone-1", "/admin/households")).toBe(true);
     expect(routeAllowed(householdsAdmin, "zone-1", "/admin/residents")).toBe(false);
+    expect(routeAllowed(session("ZONE_ADMIN", []), "zone-1", "/admin/settings")).toBe(true);
   });
 });
 
