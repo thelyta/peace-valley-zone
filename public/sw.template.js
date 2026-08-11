@@ -1,4 +1,4 @@
-const SHELL_CACHE = "peace-valley-shell-v1";
+const SHELL_CACHE = "peace-valley-shell-__BUILD_ID__";
 const SHELL = ["/", "/offline/"];
 
 self.addEventListener("install", (event) => {
@@ -25,7 +25,7 @@ self.addEventListener("fetch", (event) => {
   // or visitor data and must not create an offline admission path.
   if (url.pathname.startsWith("/v1/") || url.origin !== self.location.origin) return;
   event.respondWith(
-    fetch(request).catch(() =>
+    fetch(request, request.mode === "navigate" ? { cache: "no-store" } : undefined).catch(() =>
       caches.match(request).then((hit) => hit || caches.match("/offline/")),
     ),
   );

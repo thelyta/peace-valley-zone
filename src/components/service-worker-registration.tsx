@@ -17,7 +17,41 @@ export function ServiceWorkerRegistration() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+
+    let reloading = false;
+    const hadController = navigator.serviceWorker.controller !== null;
+    const reloadForUpdate = () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener("controllerchange", reloadForUpdate);
+
+    let checkForUpdate: (() => void) | undefined;
+    let disposed = false;
+    void navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then((registration) => {
+        if (disposed) return;
+        checkForUpdate = () => {
+          if (navigator.onLine && document.visibilityState === "visible") {
+            void registration.update().catch(() => undefined);
+          }
+        };
+        checkForUpdate();
+        window.addEventListener("focus", checkForUpdate);
+        document.addEventListener("visibilitychange", checkForUpdate);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      disposed = true;
+      navigator.serviceWorker.removeEventListener("controllerchange", reloadForUpdate);
+      if (checkForUpdate) {
+        window.removeEventListener("focus", checkForUpdate);
+        document.removeEventListener("visibilitychange", checkForUpdate);
+      }
+    };
   }, []);
 
   useEffect(() => {
