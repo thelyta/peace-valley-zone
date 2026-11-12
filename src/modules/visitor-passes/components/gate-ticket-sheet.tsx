@@ -57,8 +57,8 @@ export function GateTicketSheet({
           className="rounded-lg bg-warning-soft px-3 py-2 text-sm font-medium text-warning-soft-foreground"
           role="status"
         >
-          Keep this code private. You can open it again from Recent visitor passes while it is
-          pending.
+          Security can now see this expected visitor. Sharing the code or QR is optional. Keep the
+          code private; you can open it again from Recent visitor passes while it is pending.
         </p>
 
         <div className="rounded-xl bg-success-soft p-5 text-center">
