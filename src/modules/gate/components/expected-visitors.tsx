@@ -3,9 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { customInstance } from "@/lib/mutator";
-import { useEstateTimezone } from "@/modules/zones";
 import { Button, Field, Input } from "@/ui";
-import { formatDateTime } from "@/utils/dates";
 import { userMessageForError } from "@/utils/error-messages";
 import { gateKeys } from "../query-keys";
 
@@ -27,7 +25,6 @@ export function ExpectedVisitors({ zoneId, gateId }: { zoneId: string; gateId: s
   const [partySize, setPartySize] = useState("");
   const [message, setMessage] = useState("");
   const client = useQueryClient();
-  const timeZone = useEstateTimezone(zoneId);
   const key = ["expected-visitors", zoneId, gateId];
   const query = useQuery({
     queryKey: [...key, search],
@@ -100,9 +97,7 @@ export function ExpectedVisitors({ zoneId, gateId }: { zoneId: string; gateId: s
               <p className="text-sm text-muted-foreground">
                 Invited by {visitor.inviterName} · {visitor.houseNumber} {visitor.streetName}
               </p>
-              <p className="text-sm text-muted-foreground">
-                {visitor.partySize} expected · Expires {formatDateTime(visitor.expiresAt, timeZone)}
-              </p>
+              <p className="text-sm text-muted-foreground">{visitor.partySize} expected</p>
               {visitor.visitorPhoneE164 ? (
                 <p className="text-sm">{visitor.visitorPhoneE164}</p>
               ) : null}
