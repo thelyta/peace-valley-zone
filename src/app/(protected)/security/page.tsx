@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/app.store";
 import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { GatePanel, RecentGateEvents, useFetchMyGates } from "@/modules/gate";
+import { ExpectedVisitors } from "@/modules/gate/components/expected-visitors";
 import {
   EmptyState,
   ErrorState,
@@ -108,6 +109,7 @@ export default function SecurityPage() {
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         <GatePanel zoneId={zoneId} gateId={selected} initialCode={initialCode} />
         <div className="space-y-3">
+          <ExpectedVisitors key={selected} zoneId={zoneId} gateId={selected} />
           <div className="flex justify-end">
             <Link
               href="/security/recent"

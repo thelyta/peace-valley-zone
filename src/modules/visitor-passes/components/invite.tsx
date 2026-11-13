@@ -189,6 +189,9 @@ export function VisitorInvite({ zoneId, householdId }: { zoneId: string; househo
 
       {canCreate ? (
         <form onSubmit={form.handleSubmit(submit)} className="mt-5 space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Security will see this visitor at the selected gate. Sharing a code or QR is optional.
+          </p>
           {multipleGates ? (
             <div className="space-y-1.5">
               <Label htmlFor="entry-gate">Entry gate</Label>
@@ -261,7 +264,7 @@ export function VisitorInvite({ zoneId, householdId }: { zoneId: string; househo
             disabled={create.isPending || gates.length === 0}
           >
             <Icon icon={Ticket} size={24} />
-            {create.isPending ? "Creating pass…" : "Create visitor pass"}
+            {create.isPending ? "Notifying security…" : "Add expected visitor"}
           </Button>
         </form>
       ) : null}

@@ -8,7 +8,7 @@ import { useFetchSession } from "@/modules/auth/queries/use-fetch-session";
 import { hasPermission, Permission } from "@/modules/auth/utils/permission";
 import { GatesManager, StreetsManager } from "@/modules/directory";
 import type { DuesGatePolicy } from "@/types/enums";
-import { Button, EmptyState, ErrorState, Field, Input, SelectControl, Skeleton } from "@/ui";
+import { Button, ErrorState, Field, Input, SelectControl, Skeleton } from "@/ui";
 import { useUpdateZoneSettings } from "../mutations/use-update-zone-settings";
 import { useFetchZone } from "../queries/use-fetch-zone";
 
@@ -92,16 +92,15 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
 
   useEffect(() => {
     const settings = query.data?.settings;
-    if (!settings) {
-      return;
-    }
+    if (!query.data) return;
     form.reset({
-      visitorExpiryHours: settings.visitorExpiryMinutes / 60,
-      maxVisitorPartySize: settings.maxVisitorPartySize,
-      duesGatePolicy: settings.duesGatePolicy as DuesGatePolicy,
-      announcementSecurityVisibility: settings.announcementSecurityVisibility ? "true" : "false",
+      visitorExpiryHours: (settings?.visitorExpiryMinutes ?? 720) / 60,
+      maxVisitorPartySize: settings?.maxVisitorPartySize ?? 20,
+      duesGatePolicy: (settings?.duesGatePolicy ?? "BLOCK_IF_NOT_ELIGIBLE") as DuesGatePolicy,
+      announcementSecurityVisibility:
+        settings?.announcementSecurityVisibility === false ? "false" : "true",
     });
-  }, [form, query.data?.settings]);
+  }, [form, query.data]);
 
   const save = useUpdateZoneSettings(zoneId);
 
@@ -120,15 +119,6 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
   if (query.isError) {
     return <ErrorState error="Unable to load zone settings." retry={() => void query.refetch()} />;
   }
-  if (!query.data.settings) {
-    return (
-      <EmptyState
-        title="Settings unavailable"
-        detail="Zone settings have not been initialized yet."
-      />
-    );
-  }
-
   return (
     <form
       className="max-w-xl space-y-4 rounded-xl border border-border bg-card p-5"
@@ -138,6 +128,12 @@ export function ZoneSettingsForm({ zoneId }: { zoneId: string }) {
         <h2 className="text-lg font-semibold">General</h2>
         <p className="mt-1 text-sm text-muted-foreground">{query.data.name}</p>
       </div>
+      {!query.data.settings && (
+        <p className="text-sm text-muted-foreground">
+          These settings have not been initialized. Review the defaults and save them to configure
+          this zone.
+        </p>
+      )}
       <Field label="Visitor pass expiry (hours)">
         <Input
           type="number"
